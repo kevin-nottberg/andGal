@@ -122,4 +122,42 @@ public class AndroidGal extends Activity implements onTouchListener
         	}
         }
     }
+    
+    public class KillingMachine
+    {
+    	public KillingMachine()
+    	{
+    		
+    	}
+    	
+    	public void shoot()
+    	{
+    	
+    	}
+    	
+    	public void update()
+    	{
+    	
+    	}
+    	
+    	public void collisionCheck();
+    }
+    
+    public class SpaceShip
+    {
+    	public SpaceShip()
+    	{
+    	
+    	}
+    	
+    	public void color()
+    	{
+    	
+    	}
+    	
+    	public void shoot()
+    	{
+    	
+    	}
+    }
 }
