@@ -1,0 +1,81 @@
+package android.andGal.mainGame;
+
+public class AndroidGal extends Activity implements onTouchListener
+{
+    AssetManager fdman;
+    RenderView renView;
+    
+    public void onCreate( Bundle savedInstanceState )
+    {
+        super.onCreate( savedInstanceState );
+        
+        requestWindowFeature( Window.FEATURE_NO_TITLE );
+    	getWindow().setFlags( WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN );
+        
+        renView = new RenderView( this );
+        renView.setOnTouchListener( this );
+        setContentView( renView );
+        
+    }
+    
+    public boolean onTouch( View v, MotionEvent event )
+    {
+		// Initilizing some varibles for multi-touch
+		int halfHeight = renderView.getHeight() / 2;
+		int maxCount = event.getPointerCount();
+		int action = MotionEventCompat.getActionMasked( event );
+		Log.d("KevinApp", "OnTouch: " + String.valueOf( action ));
+		for ( int i = 0; i < maxCount; i++ )
+		{
+			// int mActivePointerId = event.getPointerId( i );
+			// int pointerIndex = event.findPointerIndex( mActivePointerId );
+			// int index = MotionEventCompat.getActionIndex( event );
+   
+			// Reacting to the finger taps
+			switch( action )
+			{
+				case MotionEvent.ACTION_DOWN:
+				case MotionEvent.ACTION_POINTER_DOWN:
+				case MotionEvent.ACTION_MOVE:
+					if ( MotionEventCompat.getY( event, i ) < halfHeight )
+					{
+						curPointPosXtwo = (int) MotionEventCompat.getX( event, i );
+						// curPointPosYtwo = (int) MotionEventCompat.getY( event, i );
+					}
+					if ( MotionEventCompat.getY( event, i ) > halfHeight )
+					{
+						curPointPosXone = (int) MotionEventCompat.getX( event, i );
+						// curPointPosYone = (int) MotionEventCompat.getY( event, i );
+					}
+			break;
+			}
+		}	
+		return true;
+	}
+    
+    public void onResume()
+    {
+        super.onResume();
+        renView.resume();
+    }
+    
+    public void onPause()
+    {
+        super.onPause();
+        renView.pause();
+    }
+    
+    public class RenderView extends SurfaceView implements Runnable
+    {
+        Thread renThread;
+        SurfaceHolder holder;
+        volatile boolean running = false;
+        Paint paint;
+        public RenderView( Context context )
+        {   
+            super( context );
+            holder = getHolder();
+            paint = new Paint();
+        }
+    }
+}
