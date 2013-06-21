@@ -71,11 +71,55 @@ public class AndroidGal extends Activity implements onTouchListener
         SurfaceHolder holder;
         volatile boolean running = false;
         Paint paint;
+        
         public RenderView( Context context )
         {   
             super( context );
             holder = getHolder();
             paint = new Paint();
+        }
+        
+        public void resume()
+        {
+        	renderThread = new Thread( this );
+        	running = true;
+        	renThread.start();
+        }
+        
+        public void pause() 
+		{
+			Log.d("KevinMess", "renderPause");
+			running = false;
+			while( true )
+			{
+				try {
+					renderThread.join();
+					return;
+				} catch ( InterruptedException e ) {
+					//retry
+				}
+			}
+		}
+        
+        public void run()
+        {
+        	long startTime = System.nanoTime();
+        	
+        	while( running )
+        	{
+        		deltaTime = ( System.nanoTime - startTime ) * 1000000000.0f
+        		
+        		if ( !holder.getSurface().isValid() )
+        			continue;
+        			
+        		Canvas canvas = holder.lockCanvas();
+        		canvas.drawRGB( 0, 0, 0 );
+        		paint.setStyle( Style.FILL );
+        		int width = canvas.getWidth();
+        		int height = canvas.getHeight();
+        	
+        		canvas.unlockCanvasAndPost( canvas );
+        	}
         }
     }
 }
