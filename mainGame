@@ -4,6 +4,10 @@ public class AndroidGal extends Activity implements onTouchListener
 {
     AssetManager fdman;
     RenderView renView;
+    int BLUE = 1;
+    int YELLOW = 2;
+    int RED = 3;
+    int GREEN = 4;
     
     public void onCreate( Bundle savedInstanceState )
     {
@@ -81,7 +85,7 @@ public class AndroidGal extends Activity implements onTouchListener
         
         public void resume()
         {
-        	renderThread = new Thread( this );
+        	renThread = new Thread( this );
         	running = true;
         	renThread.start();
         }
@@ -93,7 +97,7 @@ public class AndroidGal extends Activity implements onTouchListener
 			while( true )
 			{
 				try {
-					renderThread.join();
+					renThread.join();
 					return;
 				} catch ( InterruptedException e ) {
 					//retry
@@ -140,19 +144,23 @@ public class AndroidGal extends Activity implements onTouchListener
     	
     	}
     	
-    	public void collisionCheck();
+    	public void collisionCheck()
+    	{
+    	
+    	}
     }
     
     public class SpaceShip
     {
- 	private int clipStat;
- 	private int Color;
- 	private int reloadLoop;
+ 		private int clipStat;
+ 		private int Color;
+		private int reloadLoop;
  	
     	public SpaceShip()
     	{
     		clipStat = 6;
     		reloadLoop = 0;
+    		Color = 0;
     	}
     	
     	public void color( int color );
