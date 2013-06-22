@@ -145,19 +145,84 @@ public class AndroidGal extends Activity implements onTouchListener
     
     public class SpaceShip
     {
+ 	private int clipStat;
+ 	private int Color;
+ 	private int reloadLoop;
+ 	
     	public SpaceShip()
     	{
-    	
+    		clipStat = 6;
+    		reloadLoop = 0;
     	}
     	
-    	public void color()
+    	public void color( int color );
     	{
-    	
+    		Color = color;
+    		
+    		// Returing color logic
+    		if ( Color == 1 )
+    		{
+    			return "blue";
+    		}
+    		
+    		if ( Color == 2 )
+    		{
+    			return "yellow";
+    		}
+    		
+    		if ( Color == 3 )
+    		{
+    			return "red";
+    		}
+    		
+    		if ( Color == 4 )
+    		{
+    			return "green";
+    		}
     	}
     	
     	public void shoot()
     	{
-    	
+    		if ( clipStat == 6 )
+    		{
+    			clipStat = 5;
+    		}
+    		
+    		if ( clipStat == 5 )
+    		{
+    			clipStat = 4;
+    		}
+    		
+    		if ( clipStat == 4 )
+    		{
+    			clipStat = 3;
+    		}
+    		
+    		if ( clipStat == 3 )
+    		{
+    			clipStat = 2;
+    		}
+    		
+    		if ( clipStat == 2 )
+    		{
+    			clipStat = 1;
+    		}
+    		
+    		if ( clipStat == 1 )
+    		{
+    			clipStat = 0;
+    		}
+    		
+    		if ( clipStat == 0 )
+    		{
+    			reloadLoop++;
+    		}
+    		
+  			if ( clipStat == 0 && reloadLoop == 1 )
+  			{
+  				reloadLoop = 0;
+  				clipStat == 6;
+  			}
     	}
     }
 }
