@@ -155,6 +155,10 @@ public class AndroidGal extends Activity implements onTouchListener
  		private int clipStat;
  		private int Color;
 		private int reloadLoop;
+		private int bulletRX;
+		private int bulletTY;
+		private int bulletLX;
+		private int bulletBY;
  	
     	public SpaceShip()
     	{
@@ -231,6 +235,29 @@ public class AndroidGal extends Activity implements onTouchListener
   				reloadLoop = 0;
   				clipStat == 6;
   			}
+    	}
+    	
+    	public void getBitmap()
+    	{
+    		if ( Color == BLUE )
+    		{
+    			// return bitMap address of the blue spaceship
+    		}
+    		
+    		if ( Color == YELLOW )
+    		{
+    			// return bitMap address of the yellow spaceship
+    		}
+    		
+    		if ( Color == RED )
+    		{
+    			// return bitMap address of the red spaceship
+    		}
+    		
+    		if ( Color == GREEN )
+    		{
+    			// return bitmap address of the green spaceship
+    		}
     	}
     }
 }
