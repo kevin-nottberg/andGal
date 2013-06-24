@@ -3,6 +3,7 @@ package android.andGal.mainGame;
 public class AndroidGal extends Activity implements onTouchListener
 {
     AssetManager fdman;
+    Bitmap bitMap;
     RenderView renView;
     int BLUE = 1;
     int YELLOW = 2;
@@ -153,7 +154,7 @@ public class AndroidGal extends Activity implements onTouchListener
     public class SpaceShip
     {
  		private int clipStat;
- 		private int Color;
+ 		private int Color; 
 		private int reloadLoop;
 		private int bulletRX;
 		private int bulletTY;
@@ -165,32 +166,6 @@ public class AndroidGal extends Activity implements onTouchListener
     		clipStat = 6;
     		reloadLoop = 0;
     		Color = 0;
-    	}
-    	
-    	public void color( int color );
-    	{
-    		Color = color;
-    		
-    		// Returing color logic
-    		if ( Color == 1 )
-    		{
-    			return "blue";
-    		}
-    		
-    		if ( Color == 2 )
-    		{
-    			return "yellow";
-    		}
-    		
-    		if ( Color == 3 )
-    		{
-    			return "red";
-    		}
-    		
-    		if ( Color == 4 )
-    		{
-    			return "green";
-    		}
     	}
     	
     	public void shoot()
@@ -237,27 +212,109 @@ public class AndroidGal extends Activity implements onTouchListener
   			}
     	}
     	
-    	public void getBitmap()
+    	public void getBitmap( int shipCol )
     	{
-    		if ( Color == BLUE )
+    		if ( shipCol == BLUE )
     		{
+    			Color = BLUE;
     			// return bitMap address of the blue spaceship
     		}
     		
-    		if ( Color == YELLOW )
+    		if ( shipCol == YELLOW )
     		{
+    			Color = YELLOW;
     			// return bitMap address of the yellow spaceship
     		}
     		
-    		if ( Color == RED )
+    		if ( shipCol == RED )
     		{
+    			Color = RED;
     			// return bitMap address of the red spaceship
     		}
     		
-    		if ( Color == GREEN )
+    		if ( shipCol == GREEN )
     		{
+    			Color = GREEN;
     			// return bitmap address of the green spaceship
     		}
     	}
     }
-}
+    
+    public class Pixmap
+    {
+    	Bitmap bitmap;
+    	PixmapFormat format;
+    	
+    	public Pixmap( Bitmap bitmap, PixmapFormat format )
+    	{
+    		this.bitmap = bitmap;
+    		this.format = format;
+    	}
+    	
+    	public int getWidth()
+    	{
+    		return bitmap.getWidth();
+    	}
+    	
+    	public int getHeight()
+    	{
+    		return bitmap.getHeight();
+    	}
+    	
+    	public PixmapFormat getFormat()
+    	{
+    		return format;
+    	}
+    	
+    	public void dispose()
+    	{
+    		bitmap.recycle();
+    	}
+    }
+    
+    public class Graphics()
+    {
+    	AssetManager assets;
+    	Bitmap frameBuffer;
+    	Rect srcRect = new Rect();
+    	Rect dstRect = new Rect();
+    	
+    	public Graphics( AssetManager assets, Bitmap frameBuffer )
+    	{
+    		this.assets = assets;
+    		this.frameBuffer = frameBuffer;
+    	}
+    	
+    	public Pixmap newPixmap( String fileName, PixmapFormat format )
+    	{
+    		Config config = null;
+    		if ( format == PixmapFormat.RGB565 )
+    			config = Config.RGB_565;
+    		else if ( format == PixmapFormat.ARGB4444 )
+    			config = Config.ARBG_4444;
+    		else 
+    			config = Config.ARGB_8888;
+    		
+    		Options options = new Options();
+    		options.inPrefferdConfig = config;
+    		
+    		InputStream in = null;
+    		Bitmap bitmap = null;
+    		try {
+    			in = assets.open( fileName);
+    			bitmap = BitmapFactory.decodeStream( in );
+    			if ( bitmap == null )
+ 					thrown new RunTimeException( " " );
+ 			} catch ( IOExceptions e ) {
+ 				thrown new RunTimeException( " " );
+ 			} finally {
+ 				if ( in != null )
+ 				{
+ 					try {
+ 						in.close();
+ 					} catch (IOException e ) {
+ 					}
+ 				}	
+    		}
+    	}
+	}
