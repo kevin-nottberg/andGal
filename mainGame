@@ -3,8 +3,18 @@ package android.andGal.mainGame;
 public class AndroidGal extends Activity implements onTouchListener
 {
     AssetManager fdman;
-    Bitmap bitMap;
+    Bitmap bitMap1;
+    Bitmap bitMap2;
+    BitmapHandler bitmapHndler1;
+    BitmapHandler bitmapHndler2;
     RenderView renView;
+    
+    Stirng imq1;
+    String img2;
+    
+    SpaceShip tSpaceShip;
+    SpaceShip bSpaceShip;
+    
     int BLUE = 1;
     int YELLOW = 2;
     int RED = 3;
@@ -13,6 +23,18 @@ public class AndroidGal extends Activity implements onTouchListener
     public void onCreate( Bundle savedInstanceState )
     {
         super.onCreate( savedInstanceState );
+        
+        tSpaceShip = new SpaceShip( RED );
+        bSpaceShip = new SpaceShip( YELLOW );
+        
+        img1 = tSpaceShip.getImgAdd();
+        img2 = tSpaceShip.getImgAdd();
+        
+        bitmapHndler1 = new BitMapHandler( this, assets, bitMap1 );
+        bitmapHndler2 = new BitMapHandler( this, assets, bitMap2 );
+        
+        bitMap1 = imgLoad.createBitMap( img1 );
+        bitMap2 = imgLoad.createBitMap( img2 );
         
         requestWindowFeature( Window.FEATURE_NO_TITLE );
     	getWindow().setFlags( WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN );
@@ -128,29 +150,6 @@ public class AndroidGal extends Activity implements onTouchListener
         }
     }
     
-    public class KillingMachine
-    {
-    	public KillingMachine()
-    	{
-    		
-    	}
-    	
-    	public void shoot()
-    	{
-    	
-    	}
-    	
-    	public void update()
-    	{
-    	
-    	}
-    	
-    	public void collisionCheck()
-    	{
-    	
-    	}
-    }
-    
     public class SpaceShip
     {
  		private int clipStat;
@@ -161,11 +160,11 @@ public class AndroidGal extends Activity implements onTouchListener
 		private int bulletLX;
 		private int bulletBY;
  	
-    	public SpaceShip()
+    	public SpaceShip( int clr )
     	{
     		clipStat = 6;
     		reloadLoop = 0;
-    		Color = 0;
+    		Color = clr;
     	}
     	
     	public void shoot()
@@ -212,109 +211,75 @@ public class AndroidGal extends Activity implements onTouchListener
   			}
     	}
     	
-    	public void getBitmap( int shipCol )
+    	public String getImgAdd()
     	{
-    		if ( shipCol == BLUE )
+    		if ( Color == BLUE )
     		{
-    			Color = BLUE;
-    			// return bitMap address of the blue spaceship
+				return "andgal_space_blu.png";
     		}
     		
-    		if ( shipCol == YELLOW )
+    		if ( Color == YELLOW )
     		{
-    			Color = YELLOW;
-    			// return bitMap address of the yellow spaceship
+				return "andgal_space_ylw.png";
     		}
     		
-    		if ( shipCol == RED )
+    		if ( Color == RED )
     		{
-    			Color = RED;
-    			// return bitMap address of the red spaceship
+    			return "andgal_space_red.png";
     		}
     		
-    		if ( shipCol == GREEN )
+    		if ( Color == GREEN )
     		{
-    			Color = GREEN;
-    			// return bitmap address of the green spaceship
+    			return "andgal_spacee_grn.png";
     		}
     	}
     }
     
-    public class Pixmap
+    public class BitmapHandler()
     {
+    	AssetManager assets;
     	Bitmap bitmap;
-    	PixmapFormat format;
+    	Rect srcRect = new Rect();
+    	Rect dstRect = new Rect();
     	
-    	public Pixmap( Bitmap bitmap, PixmapFormat format )
+    	public BitmapHandler( Context context, AssetManager assets, Bitmap bitmap )
     	{
+    		super( context );
+    		this.assets = assets;
     		this.bitmap = bitmap;
-    		this.format = format;
     	}
     	
-    	public int getWidth()
+    	public void createBitMap( String img )
     	{
-    		return bitmap.getWidth();
+    		try {
+    			assets = context.getAssets();
+    			InputStream inputStream = assetManager.open( img );
+    			bitmap = BitmapFactory.decodeSteam( inputStream );
+    			
+    		} catch (IOException e) {
+    			// Spacer commet
+    		} finally {
+    			inputStream.close();
+    		}
     	}
     	
-    	public int getHeight()
+    	public Bitmap getBitmap()
+    	{
+    		return bitmap;
+    	}
+    	
+    	public void clearBitmap()
+    	{
+    		bitmap.recylce;
+    	}
+    	
+    	public int height()
     	{
     		return bitmap.getHeight();
     	}
     	
-    	public PixmapFormat getFormat()
+    	public int width()
     	{
-    		return format;
-    	}
-    	
-    	public void dispose()
-    	{
-    		bitmap.recycle();
-    	}
-    }
-    
-    public class Graphics()
-    {
-    	AssetManager assets;
-    	Bitmap frameBuffer;
-    	Rect srcRect = new Rect();
-    	Rect dstRect = new Rect();
-    	
-    	public Graphics( AssetManager assets, Bitmap frameBuffer )
-    	{
-    		this.assets = assets;
-    		this.frameBuffer = frameBuffer;
-    	}
-    	
-    	public Pixmap newPixmap( String fileName, PixmapFormat format )
-    	{
-    		Config config = null;
-    		if ( format == PixmapFormat.RGB565 )
-    			config = Config.RGB_565;
-    		else if ( format == PixmapFormat.ARGB4444 )
-    			config = Config.ARBG_4444;
-    		else 
-    			config = Config.ARGB_8888;
-    		
-    		Options options = new Options();
-    		options.inPrefferdConfig = config;
-    		
-    		InputStream in = null;
-    		Bitmap bitmap = null;
-    		try {
-    			in = assets.open( fileName);
-    			bitmap = BitmapFactory.decodeStream( in );
-    			if ( bitmap == null )
- 					thrown new RunTimeException( " " );
- 			} catch ( IOExceptions e ) {
- 				thrown new RunTimeException( " " );
- 			} finally {
- 				if ( in != null )
- 				{
- 					try {
- 						in.close();
- 					} catch (IOException e ) {
- 					}
- 				}	
-    		}
+    		return bitmap.getWidth();
     	}
 	}
