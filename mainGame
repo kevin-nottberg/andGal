@@ -1,15 +1,37 @@
-package android.andGal.mainGame;
+package com.android.andGal.mainGame;
 
-public class AndroidGal extends Activity implements onTouchListener
+import java.io.IOException;
+import java.io.InputStream;
+
+import android.app.Activity;
+import android.content.Context;
+import android.content.res.AssetManager;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.graphics.Canvas;
+import android.graphics.Paint;
+import android.graphics.Paint.Style;
+import android.os.Bundle;
+import android.support.v4.view.MotionEventCompat;
+import android.util.Log;
+import android.view.MotionEvent;
+import android.view.SurfaceHolder;
+import android.view.SurfaceView;
+import android.view.View;
+import android.view.View.OnTouchListener;
+import android.view.Window;
+import android.view.WindowManager;
+
+public class AndroidGal extends Activity implements OnTouchListener
 {
     AssetManager fdman;
     Bitmap bitMap1;
     Bitmap bitMap2;
-    BitmapHandler bitmapHndler1;
-    BitmapHandler bitmapHndler2;
+    BitMapHandler bitmapHndler1;
+    BitMapHandler bitmapHndler2;
     RenderView renView;
     
-    Stirng imq1;
+    String img1;
     String img2;
     
     SpaceShip tSpaceShip;
@@ -48,7 +70,7 @@ public class AndroidGal extends Activity implements onTouchListener
     public boolean onTouch( View v, MotionEvent event )
     {
 		// Initilizing some varibles for multi-touch
-		int halfHeight = renderView.getHeight() / 2;
+		int halfHeight = renView.getHeight() / 2;
 		int maxCount = event.getPointerCount();
 		int action = MotionEventCompat.getActionMasked( event );
 		Log.d("KevinApp", "OnTouch: " + String.valueOf( action ));
@@ -66,12 +88,12 @@ public class AndroidGal extends Activity implements onTouchListener
 				case MotionEvent.ACTION_MOVE:
 					if ( MotionEventCompat.getY( event, i ) < halfHeight )
 					{
-						curPointPosXtwo = (int) MotionEventCompat.getX( event, i );
+						//curPointPosXtwo = (int) MotionEventCompat.getX( event, i );
 						// curPointPosYtwo = (int) MotionEventCompat.getY( event, i );
 					}
 					if ( MotionEventCompat.getY( event, i ) > halfHeight )
 					{
-						curPointPosXone = (int) MotionEventCompat.getX( event, i );
+						//curPointPosXone = (int) MotionEventCompat.getX( event, i );
 						// curPointPosYone = (int) MotionEventCompat.getY( event, i );
 					}
 			break;
@@ -134,7 +156,7 @@ public class AndroidGal extends Activity implements onTouchListener
         	
         	while( running )
         	{
-        		deltaTime = ( System.nanoTime - startTime ) * 1000000000.0f
+        		float deltaTime = ( System.nanoTime() - startTime ) * 1000000000.0f;
         		
         		if ( !holder.getSurface().isValid() )
         			continue;
@@ -145,7 +167,7 @@ public class AndroidGal extends Activity implements onTouchListener
         		int width = canvas.getWidth();
         		int height = canvas.getHeight();
         	
-        		canvas.unlockCanvasAndPost( canvas );
+        		holder.unlockCanvasAndPost( canvas );
         	}
         }
     }
@@ -164,7 +186,7 @@ public class AndroidGal extends Activity implements onTouchListener
     	{
     		clipStat = 6;
     		reloadLoop = 0;
-    		Color = this.clr;
+    		Color = clr;
     	}
     	
     	public void shoot()
@@ -207,7 +229,7 @@ public class AndroidGal extends Activity implements onTouchListener
   			if ( clipStat == 0 && reloadLoop == 1 )
   			{
   				reloadLoop = 0;
-  				clipStat == 6;
+  				clipStat = 6;
   			}
     	}
     	
@@ -232,17 +254,21 @@ public class AndroidGal extends Activity implements onTouchListener
     		{
     			return "andgal_spacee_grn.png";
     		}
+    		else 
+    		{
+    			return null;
+    		}
     	}
     }
     
-    public class BitmapHandler()
+    public class BitMapHandler
     {
     	AssetManager assets;
     	Bitmap bitmap;
+    	Context context;
     	
-    	public BitmapHandler( Context context, AssetManager assets, Bitmap bitmap )
+    	public BitMapHandler( Context context, AssetManager assets, Bitmap bitmap )
     	{
-    		super( context );
     		this.assets = assets;
     		this.bitmap = bitmap;
     	}
@@ -251,12 +277,12 @@ public class AndroidGal extends Activity implements onTouchListener
     	{
     		try {
     			assets = context.getAssets();
-    			InputStream inputStream = assetManager.open( img );
-    			bitmap = BitmapFactory.decodeSteam( inputStream );
+    			InputStream inputStream = assets.open( img );
+    			bitmap = BitmapFactory.decodeStream( inputStream );
+    			inputStream.close();
     		} catch (IOException e) {
     			// Spacer commet
     		} finally {
-    			inputStream.close();
     		}
     	}
     	
