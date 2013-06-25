@@ -27,14 +27,14 @@ public class AndroidGal extends Activity implements onTouchListener
         tSpaceShip = new SpaceShip( RED );
         bSpaceShip = new SpaceShip( YELLOW );
         
-        img1 = tSpaceShip.getImgAdd();
-        img2 = tSpaceShip.getImgAdd();
+        img1 = tSpaceShip.getImgAddress();
+        img2 = tSpaceShip.getImgAddress();
         
-        bitmapHndler1 = new BitMapHandler( this, assets, bitMap1 );
-        bitmapHndler2 = new BitMapHandler( this, assets, bitMap2 );
+        bitmapHndler1 = new BitMapHandler( this, fdman, bitMap1 );
+        bitmapHndler2 = new BitMapHandler( this, fdman, bitMap2 );
         
-        bitMap1 = imgLoad.createBitMap( img1 );
-        bitMap2 = imgLoad.createBitMap( img2 );
+        bitmapHndler1.createBitMap( img1 );
+        bitmapHndler2.createBitMap( img2 );
         
         requestWindowFeature( Window.FEATURE_NO_TITLE );
     	getWindow().setFlags( WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN );
@@ -164,7 +164,7 @@ public class AndroidGal extends Activity implements onTouchListener
     	{
     		clipStat = 6;
     		reloadLoop = 0;
-    		Color = clr;
+    		Color = this.clr;
     	}
     	
     	public void shoot()
@@ -211,7 +211,7 @@ public class AndroidGal extends Activity implements onTouchListener
   			}
     	}
     	
-    	public String getImgAdd()
+    	public String getImgAddress()
     	{
     		if ( Color == BLUE )
     		{
@@ -239,8 +239,6 @@ public class AndroidGal extends Activity implements onTouchListener
     {
     	AssetManager assets;
     	Bitmap bitmap;
-    	Rect srcRect = new Rect();
-    	Rect dstRect = new Rect();
     	
     	public BitmapHandler( Context context, AssetManager assets, Bitmap bitmap )
     	{
@@ -255,7 +253,6 @@ public class AndroidGal extends Activity implements onTouchListener
     			assets = context.getAssets();
     			InputStream inputStream = assetManager.open( img );
     			bitmap = BitmapFactory.decodeSteam( inputStream );
-    			
     		} catch (IOException e) {
     			// Spacer commet
     		} finally {
@@ -270,7 +267,7 @@ public class AndroidGal extends Activity implements onTouchListener
     	
     	public void clearBitmap()
     	{
-    		bitmap.recylce;
+    		bitmap.recycle();
     	}
     	
     	public int height()
@@ -283,3 +280,4 @@ public class AndroidGal extends Activity implements onTouchListener
     		return bitmap.getWidth();
     	}
 	}
+}
