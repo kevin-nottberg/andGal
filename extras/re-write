@@ -1,0 +1,316 @@
+package com.example.ponggame;
+
+import android.os.Bundle;
+import android.app.Activity;
+import android.support.v4.view.MotionEventCompat;
+import android.util.Log;
+import android.content.Context;
+import android.graphics.Canvas;
+import android.graphics.Color;
+import android.graphics.Paint;
+import android.graphics.Paint.Style;
+import android.graphics.Rect;
+import android.view.MotionEvent;
+import android.view.SurfaceHolder;
+import android.view.SurfaceView;
+import android.view.View;
+import android.view.View.OnTouchListener;
+import android.view.Window;
+import android.view.WindowManager;
+
+public class MainActivity extends Activity implements OnTouchListener
+{
+ // All global objects needed
+    FastRenderView renderView;
+    
+    Bitmap bitmap1;
+    Bitmap bitmap2;
+    
+    String img1;
+    String img2;
+    
+    SpaceShip tSpaceShip;
+    SpaceShip bSpaceShip;
+    
+    int BLUE = 1;
+    int YELLOW = 2;
+    int RED = 3;
+    int GREEN = 4;
+    
+
+	public void onCreate( Bundle savedInstanceState )
+	{
+		super.onCreate( savedInstanceState );
+        
+        tSpaceShip = new SpaceShip( RED );
+        bSpaceShip = new SpaceShip( YELLOW );
+        
+        img1 = tSpaceShip.getImgAddress();
+        img2 = tSpaceShip.getImgAddress();
+        
+        bitmapHndler1 = new BitMapHandler( this, bitMap1 );
+        bitmapHndler2 = new BitMapHandler( this, bitMap2 );
+        
+        bitmapHndler1.createBitMap( img1 );
+        bitmapHndler2.createBitMap( img2 );
+        
+        bitmap1 = bitmapHndler1.getBitMap();
+        bitmap2 = bitmapHndler2.getBitMap();
+
+		// Requesting the fullscreen for the activity
+		requestWindowFeature( Window.FEATURE_NO_TITLE );
+		getWindow().setFlags( WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN );
+ 
+		// Starting up the rendering
+		renderView = new FastRenderView( this );
+		renderView.setOnTouchListener( this );
+		setContentView( renderView );
+	}
+
+	public boolean onTouch( View v, MotionEvent event )
+	{
+		// Initilizing some varibles for multi-touch
+		int halfHeight = renderView.getHeight() / 2;
+		int maxCount = event.getPointerCount();
+		int action = MotionEventCompat.getActionMasked( event );
+		Log.d("KevinApp", "OnTouch: " + String.valueOf( action ));
+		for ( int i = 0; i < maxCount; i++ )
+		{
+			// int mActivePointerId = event.getPointerId( i );
+			// int pointerIndex = event.findPointerIndex( mActivePointerId );
+			// int index = MotionEventCompat.getActionIndex( event );
+   
+			// Reacting to the finger taps
+			switch( action )
+			{
+				case MotionEvent.ACTION_DOWN:
+				case MotionEvent.ACTION_POINTER_DOWN:
+				case MotionEvent.ACTION_MOVE:
+					if ( MotionEventCompat.getY( event, i ) < halfHeight )
+					{
+						//curPointPosXtwo = (int) MotionEventCompat.getX( event, i );
+						// curPointPosYtwo = (int) MotionEventCompat.getY( event, i );
+					}
+					if ( MotionEventCompat.getY( event, i ) > halfHeight )
+					{
+						//curPointPosXone = (int) MotionEventCompat.getX( event, i );
+						// curPointPosYone = (int) MotionEventCompat.getY( event, i );
+					}
+			break;
+			}
+		}	
+		return true;
+	}
+
+	protected void onResume()
+	{
+		Log.d("KevinMess", "OnResume");
+		super.onResume();
+		renderView.resume();
+	}
+
+	protected void onPause()
+	{
+		Log.d("KevinMess", "OnPause");
+		super.onPause();
+		renderView.pause();
+	}	  
+
+	class FastRenderView extends SurfaceView implements Runnable 
+	{
+		Thread renderThread = null;
+		SurfaceHolder holder;
+		volatile boolean running = false;
+		Paint paint;
+ 
+		public FastRenderView( Context context )
+		{
+			super( context );
+			holder = getHolder();
+			paint = new Paint();
+			Log.d( "KevinMess", "Consructor works!" );
+		}
+ 
+		public void resume()
+		{
+			running = true;
+			renderThread = new Thread( this );
+			renderThread.start();
+		}	
+ 
+		public void run()
+		{
+			Log.d( "KevinMess", "B loop" );
+			long startTime = System.nanoTime();
+			while( running )
+			{
+				// Setting up the time
+				deltaTime = ( System.nanoTime() - startTime ) * 1000000000.0f;
+
+				// Starting the main rendering part of the thread
+				if( !holder.getSurface().isValid() )
+					continue;
+				Canvas canvas = holder.lockCanvas();
+				canvas.drawRGB( 255, 255, 255 );
+				paint.setStyle( Style.FILL );
+				int width = canvas.getWidth();
+				int height = canvas.getHeight();
+
+				// Cleaning and re-orientating
+				holder.unlockCanvasAndPost( canvas );
+
+			}
+		}
+ 
+		public void pause() 
+		{
+			Log.d("KevinMess", "renderPause");
+			running = false;
+			while( true )
+			{
+				try {
+					renderThread.join();
+					return;
+				} catch ( InterruptedException e ) {
+					//retry
+				}
+			}
+		}
+        
+	}
+    
+        public class SpaceShip
+    {
+     	private int clipStat;
+ 		private int Color; 
+		private int reloadLoop;
+		private int bulletRX;
+		private int bulletTY;
+		private int bulletLX;
+		private int bulletBY;
+ 	
+    	public SpaceShip( int clr )
+    	{
+    		clipStat = 6;
+    		reloadLoop = 0;
+    		Color = clr;
+    	}
+    	
+    	public void shoot()
+    	{
+    		if ( clipStat == 6 )
+    		{
+    			clipStat = 5;
+    		}
+    		
+    		if ( clipStat == 5 )
+    		{
+    			clipStat = 4;
+    		}
+    		
+    		if ( clipStat == 4 )
+    		{
+    			clipStat = 3;
+    		}
+    		
+    		if ( clipStat == 3 )
+    		{
+    			clipStat = 2;
+    		}
+    		
+    		if ( clipStat == 2 )
+    		{
+    			clipStat = 1;
+    		}
+    		
+    		if ( clipStat == 1 )
+    		{
+    			clipStat = 0;
+    		}
+    		
+    		if ( clipStat == 0 )
+    		{
+    			reloadLoop++;
+    		}
+    		
+  			if ( clipStat == 0 && reloadLoop == 1 )
+  			{
+  				reloadLoop = 0;
+  				clipStat = 6;
+  			}
+    	}
+    	
+    	public String getImgAddress()
+    	{
+    		if ( Color == BLUE )
+    		{
+				return "andgal_space_blu.png";
+    		}
+    		
+    		if ( Color == YELLOW )
+    		{
+				return "andgal_space_ylw.png";
+    		}
+    		
+    		if ( Color == RED )
+    		{
+    			return "andgal_space_red.png";
+    		}
+    		
+    		if ( Color == GREEN )
+    		{
+    			return "andgal_spacee_grn.png";
+    		}
+    		else 
+    		{
+    			return null;
+    		}
+    	}
+    }
+    
+    public class BitMapHandler
+    {
+    	AssetManager assets;
+    	Bitmap bitmap;
+    	Context context;
+    	
+    	public BitMapHandler( Context context, Bitmap bitmap )
+    	{
+    		this.bitmap = bitmap;
+    	}
+    	
+    	public void createBitMap( String img )
+    	{
+    		try {
+    			assets = context.getAssets();
+    			InputStream inputStream = assets.open( img );
+    			bitmap = BitmapFactory.decodeStream( inputStream );
+    			inputStream.close();
+    		} catch (IOException e) {
+    			// Spacer commet
+    		} finally {
+    		}
+    	}
+    	
+    	public Bitmap getBitmap()
+    	{
+    		return bitmap;
+    	}
+    	
+    	public void clearBitmap()
+    	{
+    		bitmap.recycle();
+    	}
+    	
+    	public int height()
+    	{
+    		return bitmap.getHeight();
+    	}
+    	
+    	public int width()
+    	{
+    		return bitmap.getWidth();
+    	}
+	}
+}
+}
