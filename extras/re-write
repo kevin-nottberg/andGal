@@ -23,11 +23,8 @@ public class MainActivity extends Activity implements OnTouchListener
  // All global objects needed
     FastRenderView renderView;
     
-    Bitmap bitmap1;
-    Bitmap bitmap2;
-    
-    String img1;
-    String img2;
+    BitMap bitmap1;
+    BitMap bitmap2;
     
     SpaceShip tSpaceShip;
     SpaceShip bSpaceShip;
@@ -42,28 +39,28 @@ public class MainActivity extends Activity implements OnTouchListener
 	{
 		super.onCreate( savedInstanceState );
         
-        tSpaceShip = new SpaceShip( RED );
+        tSpaceShip = new SpaceShip( BLUE );
         bSpaceShip = new SpaceShip( YELLOW );
+      
+        bitmap1 = new BitMap( this );
+        bitmap2 = new BitMap( this );
         
-        img1 = tSpaceShip.getImgAddress();
-        img2 = tSpaceShip.getImgAddress();
-        
-        bitmapHndler1 = new BitMapHandler( this, bitMap1 );
-        bitmapHndler2 = new BitMapHandler( this, bitMap2 );
-        
-        bitmapHndler1.createBitMap( img1 );
-        bitmapHndler2.createBitMap( img2 );
-        
-        bitmap1 = bitmapHndler1.getBitMap();
-        bitmap2 = bitmapHndler2.getBitMap();
-
+   		bitmap1.createBitmap( tSpaceShip.getImgAddress() );
+   		bitmap2.createBitmap( bSpaceShip.getImgAddress() );
+   		
+   		Log.d( "onCreate", "instillizing done" );
+   		
 		// Requesting the fullscreen for the activity
 		requestWindowFeature( Window.FEATURE_NO_TITLE );
 		getWindow().setFlags( WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN );
- 
+ 		
+ 		
 		// Starting up the rendering
 		renderView = new FastRenderView( this );
 		renderView.setOnTouchListener( this );
+		
+		Log.d( "onCreate", "contentViewset" );
+		
 		setContentView( renderView );
 	}
 
@@ -104,14 +101,14 @@ public class MainActivity extends Activity implements OnTouchListener
 
 	protected void onResume()
 	{
-		Log.d("KevinMess", "OnResume");
+		Log.d( "mainClass", "OnResume" );
 		super.onResume();
 		renderView.resume();
 	}
 
 	protected void onPause()
 	{
-		Log.d("KevinMess", "OnPause");
+		Log.d( "mainClass", "OnPause" );
 		super.onPause();
 		renderView.pause();
 	}	  
@@ -128,11 +125,12 @@ public class MainActivity extends Activity implements OnTouchListener
 			super( context );
 			holder = getHolder();
 			paint = new Paint();
-			Log.d( "KevinMess", "Consructor works!" );
+			Log.d( "renderClass", "Consructor works!" );
 		}
  
 		public void resume()
 		{
+			Log.d( "renderClass", "resume called" );
 			running = true;
 			renderThread = new Thread( this );
 			renderThread.start();
@@ -140,7 +138,7 @@ public class MainActivity extends Activity implements OnTouchListener
  
 		public void run()
 		{
-			Log.d( "KevinMess", "B loop" );
+			Log.d( "renderClass", "before loop" );
 			long startTime = System.nanoTime();
 			while( running )
 			{
@@ -151,28 +149,38 @@ public class MainActivity extends Activity implements OnTouchListener
 				if( !holder.getSurface().isValid() )
 					continue;
 				Canvas canvas = holder.lockCanvas();
-				canvas.drawRGB( 255, 255, 255 );
+				
+				Log.d( "renderClass", "starting to draw" );
+				
+				canvas.drawRGB( 0, 0, 0 );
 				paint.setStyle( Style.FILL );
 				int width = canvas.getWidth();
 				int height = canvas.getHeight();
+				
+				canvas.drawBitmap( bitmap1.getBitmap(), 350, 0, null );
+				canvas.drawBitmap( bitmap2.getBitmap(), 350, 1180, null );
 
 				// Cleaning and re-orientating
 				holder.unlockCanvasAndPost( canvas );
+				
+				Log.d( "renderClass", "posted the canvas" );
 
 			}
 		}
  
 		public void pause() 
 		{
-			Log.d("KevinMess", "renderPause");
+			Log.d( "renderClass", "pauseCalled");
 			running = false;
 			while( true )
 			{
 				try {
 					renderThread.join();
+					Log.d( "renderClass", "Pause thread joined" );
 					return;
 				} catch ( InterruptedException e ) {
 					//retry
+					Log.d( "renderClass", "interupped exception" );
 				}
 			}
 		}
@@ -191,6 +199,7 @@ public class MainActivity extends Activity implements OnTouchListener
  	
     	public SpaceShip( int clr )
     	{
+    		Log.d( "SpaceClass", "Constructor works" );
     		clipStat = 6;
     		reloadLoop = 0;
     		Color = clr;
@@ -242,13 +251,16 @@ public class MainActivity extends Activity implements OnTouchListener
     	
     	public String getImgAddress()
     	{
+    		Log.d( "SpaceClass", "Img address Called" );
     		if ( Color == BLUE )
-    		{
+    		{	
+    			Log.d( "SpaceClass", "Blue eval working" );
 				return "andgal_space_blu.png";
     		}
     		
     		if ( Color == YELLOW )
     		{
+    			Log.d( "SpaceClass", "Yellow eval working" );
 				return "andgal_space_ylw.png";
     		}
     		
@@ -265,28 +277,32 @@ public class MainActivity extends Activity implements OnTouchListener
     		{
     			return null;
     		}
+    		
+    		Log.d( "SpaceClass", Integer.toString( Color ) );
     	}
     }
     
-    public class BitMapHandler
+    public class BitMap
     {
     	AssetManager assets;
     	Bitmap bitmap;
     	Context context;
     	
-    	public BitMapHandler( Context context, Bitmap bitmap )
+    	public BitMap( Context context )
     	{
-    		this.bitmap = bitmap;
+    		Log.d( "bitmapClass", "Constructor works" );
     	}
     	
     	public void createBitMap( String img )
     	{
     		try {
+    			Log.d( "bitmapCalss", "Bitmap try called");
     			assets = context.getAssets();
     			InputStream inputStream = assets.open( img );
     			bitmap = BitmapFactory.decodeStream( inputStream );
     			inputStream.close();
     		} catch (IOException e) {
+    			Log.( "bitmapClass", "Bitmap IO prob
     			// Spacer commet
     		} finally {
     		}
@@ -294,6 +310,7 @@ public class MainActivity extends Activity implements OnTouchListener
     	
     	public Bitmap getBitmap()
     	{
+    		Log.d( "bitmapClass", "getBitmap called" );
     		return bitmap;
     	}
     	
