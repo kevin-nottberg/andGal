@@ -1,4 +1,4 @@
-package com.example.ponggame;
+package com.android.andGal.mainGame;
 
 import android.os.Bundle;
 import android.app.Activity;
@@ -18,13 +18,10 @@ import android.view.View.OnTouchListener;
 import android.view.Window;
 import android.view.WindowManager;
 
-public class MainActivity extends Activity implements OnTouchListener
+public class AndroidGal extends Activity implements OnTouchListener
 {
  // All global objects needed
     FastRenderView renderView;
-    
-    BitMap bitmap1;
-    BitMap bitmap2;
     
     SpaceShip tSpaceShip;
     SpaceShip bSpaceShip;
