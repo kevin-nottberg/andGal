@@ -39,14 +39,14 @@ public class MainActivity extends Activity implements OnTouchListener
 	{
 		super.onCreate( savedInstanceState );
         
-        tSpaceShip = new SpaceShip( BLUE );
-        bSpaceShip = new SpaceShip( YELLOW );
-      
-        bitmap1 = new BitMap( this );
-        bitmap2 = new BitMap( this );
+        tSpaceShip = new SpaceShip( true, BLUE );
+        bSpaceShip = new SpaceShip( true, YELLOW );
         
-   		bitmap1.createBitmap( tSpaceShip.getImgAddress() );
-   		bitmap2.createBitmap( bSpaceShip.getImgAddress() );
+        tSpaceShip.setImgAddress();
+        bSpaceShip.setImgAddress();
+        
+   		tSpaceShip.createBitmap();
+   		bSpaceShip.createBitmap();
    		
    		Log.d( "onCreate", "instillizing done" );
    		
@@ -157,8 +157,8 @@ public class MainActivity extends Activity implements OnTouchListener
 				int width = canvas.getWidth();
 				int height = canvas.getHeight();
 				
-				canvas.drawBitmap( bitmap1.getBitmap(), 350, 0, null );
-				canvas.drawBitmap( bitmap2.getBitmap(), 350, 1180, null );
+				canvas.drawBitmap( tSpaceShip.getBitmap(), 350, 0, null );
+				canvas.drawBitmap( bSpaceShip.getBitmap(), 350, 1180, null );
 
 				// Cleaning and re-orientating
 				holder.unlockCanvasAndPost( canvas );
@@ -196,8 +196,12 @@ public class MainActivity extends Activity implements OnTouchListener
 		private int bulletTY;
 		private int bulletLX;
 		private int bulletBY;
+		AssetManager assets;
+    	Bitmap bitmap;
+    	Context context;
+    	String img;
  	
-    	public SpaceShip( int clr )
+    	public SpaceShip( Context context, int clr )
     	{
     		Log.d( "SpaceClass", "Constructor works" );
     		clipStat = 6;
@@ -249,51 +253,39 @@ public class MainActivity extends Activity implements OnTouchListener
   			}
     	}
     	
-    	public String getImgAddress()
+    	public String setImgAddress()
     	{
     		Log.d( "SpaceClass", "Img address Called" );
     		if ( Color == BLUE )
     		{	
     			Log.d( "SpaceClass", "Blue eval working" );
-				return "andgal_space_blu.png";
+				img = "andgal_space_blu.png";
     		}
     		
     		if ( Color == YELLOW )
     		{
     			Log.d( "SpaceClass", "Yellow eval working" );
-				return "andgal_space_ylw.png";
+				img = "andgal_space_ylw.png";
     		}
     		
     		if ( Color == RED )
     		{
-    			return "andgal_space_red.png";
+    			img = "andgal_space_red.png";
     		}
     		
     		if ( Color == GREEN )
     		{
-    			return "andgal_spacee_grn.png";
+    			img = "andgal_spacee_grn.png";
     		}
     		else 
     		{
-    			return null;
+    			img = null;
     		}
     		
-    		Log.d( "SpaceClass", Integer.toString( Color ) );
-    	}
-    }
-    
-    public class BitMap
-    {
-    	AssetManager assets;
-    	Bitmap bitmap;
-    	Context context;
-    	
-    	public BitMap( Context context )
-    	{
-    		Log.d( "bitmapClass", "Constructor works" );
+    		Log.d( "SpaceClass", img );
     	}
     	
-    	public void createBitMap( String img )
+    	public void createBitMap()
     	{
     		try {
     			Log.d( "bitmapCalss", "Bitmap try called");
@@ -330,4 +322,4 @@ public class MainActivity extends Activity implements OnTouchListener
     	}
 	}
 }
-}
+
