@@ -3,17 +3,19 @@ package com.android.andGal.mainGame;
 import java.io.IOException;
 import java.io.InputStream;
 
+import android.os.Bundle;
 import android.app.Activity;
+import android.support.v4.view.MotionEventCompat;
+import android.util.Log;
 import android.content.Context;
 import android.content.res.AssetManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
+import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Paint.Style;
-import android.os.Bundle;
-import android.support.v4.view.MotionEventCompat;
-import android.util.Log;
+import android.graphics.Rect;
 import android.view.MotionEvent;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
@@ -24,15 +26,8 @@ import android.view.WindowManager;
 
 public class AndroidGal extends Activity implements OnTouchListener
 {
-    AssetManager fdman;
-    Bitmap bitMap1;
-    Bitmap bitMap2;
-    BitMapHandler bitmapHndler1;
-    BitMapHandler bitmapHndler2;
-    RenderView renView;
-    
-    String img1;
-    String img2;
+ // All global objects needed
+    FastRenderView renderView;
     
     SpaceShip tSpaceShip;
     SpaceShip bSpaceShip;
@@ -42,35 +37,40 @@ public class AndroidGal extends Activity implements OnTouchListener
     int RED = 3;
     int GREEN = 4;
     
-    public void onCreate( Bundle savedInstanceState )
-    {
-        super.onCreate( savedInstanceState );
+
+	public void onCreate( Bundle savedInstanceState )
+	{
+		super.onCreate( savedInstanceState );
         
-        tSpaceShip = new SpaceShip( RED );
-        bSpaceShip = new SpaceShip( YELLOW );
+        tSpaceShip = new SpaceShip( this, BLUE );
+        bSpaceShip = new SpaceShip( this, YELLOW );
         
-        img1 = tSpaceShip.getImgAddress();
-        img2 = tSpaceShip.getImgAddress();
+        tSpaceShip.setImgAddress();
+        bSpaceShip.setImgAddress();
         
-        bitmapHndler1 = new BitMapHandler( this, fdman, bitMap1 );
-        bitmapHndler2 = new BitMapHandler( this, fdman, bitMap2 );
-        
-        bitmapHndler1.createBitMap( img1 );
-        bitmapHndler2.createBitMap( img2 );
-        
-        requestWindowFeature( Window.FEATURE_NO_TITLE );
-    	getWindow().setFlags( WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN );
-        
-        renView = new RenderView( this );
-        renView.setOnTouchListener( this );
-        setContentView( renView );
-        
-    }
-    
-    public boolean onTouch( View v, MotionEvent event )
-    {
+   		tSpaceShip.createBitMap();
+   		bSpaceShip.createBitMap();
+   		
+   		Log.d( "onCreate", "instillizing done" );
+   		
+		// Requesting the fullscreen for the activity
+		requestWindowFeature( Window.FEATURE_NO_TITLE );
+		getWindow().setFlags( WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN );
+ 		
+ 		
+		// Starting up the rendering
+		renderView = new FastRenderView( this );
+		renderView.setOnTouchListener( this );
+
+		Log.d( "onCreate", "contentViewset" );
+
+		setContentView( renderView );
+	}
+
+	public boolean onTouch( View v, MotionEvent event )
+	{
 		// Initilizing some varibles for multi-touch
-		int halfHeight = renView.getHeight() / 2;
+		int halfHeight = renderView.getHeight() / 2;
 		int maxCount = event.getPointerCount();
 		int action = MotionEventCompat.getActionMasked( event );
 		Log.d("KevinApp", "OnTouch: " + String.valueOf( action ));
@@ -101,92 +101,116 @@ public class AndroidGal extends Activity implements OnTouchListener
 		}	
 		return true;
 	}
-    
-    public void onResume()
-    {
-        super.onResume();
-        renView.resume();
-    }
-    
-    public void onPause()
-    {
-        super.onPause();
-        renView.pause();
-    }
-    
-    public class RenderView extends SurfaceView implements Runnable
-    {
-        Thread renThread;
-        SurfaceHolder holder;
-        volatile boolean running = false;
-        Paint paint;
-        
-        public RenderView( Context context )
-        {   
-            super( context );
-            holder = getHolder();
-            paint = new Paint();
-        }
-        
-        public void resume()
-        {
-        	renThread = new Thread( this );
-        	running = true;
-        	renThread.start();
-        }
-        
-        public void pause() 
+
+	protected void onResume()
+	{
+		Log.d( "mainClass", "OnResume" );
+		super.onResume();
+		renderView.resume();
+	}
+
+	protected void onPause()
+	{
+		Log.d( "mainClass", "OnPause" );
+		super.onPause();
+		renderView.pause();
+	}	  
+
+	class FastRenderView extends SurfaceView implements Runnable 
+	{
+		Thread renderThread = null;
+		SurfaceHolder holder;
+		volatile boolean running = false;
+		Paint paint;
+ 
+		public FastRenderView( Context context )
 		{
-			Log.d("KevinMess", "renderPause");
+			super( context );
+			holder = getHolder();
+			paint = new Paint();
+			Log.d( "renderClass", "Consructor works!" );
+		}
+ 
+		public void resume()
+		{
+			Log.d( "renderClass", "resume called" );
+			running = true;
+			renderThread = new Thread( this );
+			renderThread.start();
+		}	
+ 
+		public void run()
+		{
+			Log.d( "renderClass", "before loop" );
+			long startTime = System.nanoTime();
+			while( running )
+			{
+				// Setting up the time
+				float deltaTime = ( System.nanoTime() - startTime ) * 1000000000.0f;
+
+				// Starting the main rendering part of the thread
+				if( !holder.getSurface().isValid() )
+					continue;
+				Canvas canvas = holder.lockCanvas();
+
+				Log.d( "renderClass", "starting to draw" );
+
+				canvas.drawRGB( 0, 0, 0 );
+				paint.setStyle( Style.FILL );
+				int width = canvas.getWidth();
+				int height = canvas.getHeight();
+
+				canvas.drawBitmap( tSpaceShip.getBitmap(), 350, 0, null );
+				canvas.drawBitmap( bSpaceShip.getBitmap(), 350, 1180, null );
+
+				// Cleaning and re-orientating
+				holder.unlockCanvasAndPost( canvas );
+
+				Log.d( "renderClass", "posted the canvas" );
+
+			}
+		}
+ 
+		public void pause() 
+		{
+			Log.d( "renderClass", "pauseCalled");
 			running = false;
 			while( true )
 			{
 				try {
-					renThread.join();
+					renderThread.join();
+					Log.d( "renderClass", "Pause thread joined" );
 					return;
 				} catch ( InterruptedException e ) {
 					//retry
+					Log.d( "renderClass", "interupped exception" );
 				}
 			}
 		}
         
-        public void run()
-        {
-        	long startTime = System.nanoTime();
-        	
-        	while( running )
-        	{
-        		float deltaTime = ( System.nanoTime() - startTime ) * 1000000000.0f;
-        		
-        		if ( !holder.getSurface().isValid() )
-        			continue;
-        			
-        		Canvas canvas = holder.lockCanvas();
-        		canvas.drawRGB( 0, 0, 0 );
-        		paint.setStyle( Style.FILL );
-        		int width = canvas.getWidth();
-        		int height = canvas.getHeight();
-        	
-        		holder.unlockCanvasAndPost( canvas );
-        	}
-        }
-    }
+	}
     
-    public class SpaceShip
+        public class SpaceShip
     {
- 		private int clipStat;
+     	private int clipStat;
  		private int Color; 
 		private int reloadLoop;
 		private int bulletRX;
 		private int bulletTY;
 		private int bulletLX;
 		private int bulletBY;
+		AssetManager assets;
+    	Bitmap bitmap;
+    	Context context;
+    	String img;
  	
-    	public SpaceShip( int clr )
+    	public SpaceShip( Context myContext, int clr )
     	{
+    		Log.d( "SpaceClass", "Constructor works" );
     		clipStat = 6;
     		reloadLoop = 0;
     		Color = clr;
+    		context = myContext;
     	}
     	
     	public void shoot()
@@ -233,54 +257,45 @@ public class AndroidGal extends Activity implements OnTouchListener
   			}
     	}
     	
-    	public String getImgAddress()
+    	public void setImgAddress()
     	{
+    		Log.d( "SpaceClass", "Img address Called" );
     		if ( Color == BLUE )
-    		{
-				return "andgal_space_blu.png";
+    		{	
+    			Log.d( "SpaceClass", "Blue eval working" );
+				img = "andgal_space_blu.png";
     		}
-    		
-    		if ( Color == YELLOW )
+    		else if ( Color == YELLOW )
     		{
-				return "andgal_space_ylw.png";
+    			Log.d( "SpaceClass", "Yellow eval working" );
+				img = "andgal_space_ylw.png";
     		}
-    		
-    		if ( Color == RED )
+    		else if ( Color == RED )
     		{
-    			return "andgal_space_red.png";
+    			img = "andgal_space_red.png";
     		}
-    		
-    		if ( Color == GREEN )
+    		else if ( Color == GREEN )
     		{
-    			return "andgal_spacee_grn.png";
+    			img = "andgal_spacee_grn.png";
     		}
     		else 
     		{
-    			return null;
+    			img = "null";
     		}
-    	}
-    }
-    
-    public class BitMapHandler
-    {
-    	AssetManager assets;
-    	Bitmap bitmap;
-    	Context context;
-    	
-    	public BitMapHandler( Context context, AssetManager assets, Bitmap bitmap )
-    	{
-    		this.assets = assets;
-    		this.bitmap = bitmap;
+    		
+    		Log.d( "SpaceClass", img );
     	}
     	
-    	public void createBitMap( String img )
+    	public void createBitMap()
     	{
     		try {
+    			Log.d( "bitmapCalss", "Bitmap try called");
     			assets = context.getAssets();
     			InputStream inputStream = assets.open( img );
     			bitmap = BitmapFactory.decodeStream( inputStream );
     			inputStream.close();
     		} catch (IOException e) {
+    			Log.d( "bitmapClass", "Bitmap IO prob" );
     			// Spacer commet
     		} finally {
     		}
@@ -288,6 +303,7 @@ public class AndroidGal extends Activity implements OnTouchListener
     	
     	public Bitmap getBitmap()
     	{
+    		Log.d( "bitmapClass", "getBitmap called" );
     		return bitmap;
     	}
     	
