@@ -1,0 +1,70 @@
+public class bulletRounds
+{
+    SpaceShip spaceShip;
+    int spaceShipInt;
+    Rect posRect;
+    Stiring direction;
+    int X;
+    int Y;
+    String State;
+    
+    public bulletRounds( int spaceShipInt, SpaceShip spaceShip )
+    {
+        this.spaceShipInt = spaceShip;
+        this.spaceShip = spaceShip;
+        
+        if ( spaceShipInt == 1 )
+            direction = "down";
+            X = spaceShip.getX();
+            Y = spaceShip.getY(); 
+        if ( spaceShipInt == 2 )
+            direction = "up";
+            X = spaceShip.getX();
+            Y = spaceShip.getY();
+            
+        Bullet();
+    }
+    
+    public void Bullet()
+    {
+        posRect = new Rect( X, Y, ( X + 20 ), ( Y + 50 ) );
+    }
+    
+    public void updatePos( float deltaTime )
+    {
+        float deltaMove = 5 * deltaTime;
+        
+        if ( direction == "up" )
+            Y =+ deltaMove;
+        if ( direction == "down" )
+            Y =- deltaMove;
+        
+        Bullet();
+    }
+    
+    public void collisionCheck()
+    {
+        if ( spaceShipInt == 1 && ( Y + 50 ) == spaceShip.getY() )
+            destroy();
+        
+        if ( spaceShipInt == 2 && Y == ( spacShip.getY() + 100 ) )
+            destroy();
+    }
+    
+    public Rect getRect()
+    {
+        return posRect;
+    }
+     
+    public void destory()
+    {
+        X = 0;
+        y = 0;
+        State = null;
+    }
+    
+    public String status()
+    {
+        return State;
+    }
+}
