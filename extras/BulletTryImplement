@@ -1,6 +1,5 @@
 public class bulletRounds
 {
-    SpaceShip spaceShip;
     int spaceShipInt;
     Rect posRect;
     Stiring direction;
@@ -8,19 +7,18 @@ public class bulletRounds
     int Y;
     String State;
     
-    public bulletRounds( int spaceShipInt, SpaceShip spaceShip )
+    public bulletRounds( int spaceShipInt )
     {
         this.spaceShipInt = spaceShip;
-        this.spaceShip = spaceShip;
         
         if ( spaceShipInt == 1 )
             direction = "down";
-            X = spaceShip.getX();
-            Y = spaceShip.getY(); 
+            X = topSrcRect.left;
+            Y = topSrcRect.bottom + 1; 
         if ( spaceShipInt == 2 )
             direction = "up";
-            X = spaceShip.getX();
-            Y = spaceShip.getY();
+            X = bottomSrcRect.left;
+            Y = bottomSrcRect.top + 50;
             
         Bullet();
     }
@@ -28,6 +26,7 @@ public class bulletRounds
     public void Bullet()
     {
         posRect = new Rect( X, Y, ( X + 20 ), ( Y + 50 ) );
+        collisionCheck();
     }
     
     public void updatePos( float deltaTime )
