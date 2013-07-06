@@ -1,4 +1,4 @@
-public class bulletRounds
+public class Bullet
 {
     int spaceShipInt;
     Rect posRect;
@@ -7,9 +7,9 @@ public class bulletRounds
     int Y;
     String State;
     
-    public bulletRounds( int spaceShipInt )
+    public Bullet( int spaceShipInt )
     {
-        this.spaceShipInt = spaceShip;
+        this.spaceShipInt = spaceShipInt
         
         if ( spaceShipInt == 1 )
             direction = "down";
@@ -20,10 +20,10 @@ public class bulletRounds
             X = bottomSrcRect.left;
             Y = bottomSrcRect.top + 50;
             
-        Bullet();
+        BulletRect():
     }
     
-    public void Bullet()
+    public void BulletRect()
     {
         posRect = new Rect( X, Y, ( X + 20 ), ( Y + 50 ) );
         collisionCheck();
@@ -37,17 +37,23 @@ public class bulletRounds
             Y =+ deltaMove;
         if ( direction == "down" )
             Y =- deltaMove;
-        
-        Bullet();
+        collisionCheck();        
     }
     
     public void collisionCheck()
     {
-        if ( spaceShipInt == 1 && ( Y + 50 ) == spaceShip.getY() )
+        if ( spaceShipInt == 1 && ( Y + 50 ) == datTack.grabTopY() )
+        {
             destroy();
-        
-        if ( spaceShipInt == 2 && Y == ( spacShip.getY() + 100 ) )
+        }
+        else if ( spaceShipInt == 2 && Y == ( datTrack.grabBottY() + 100) )
+        {
             destroy();
+        }
+        else 
+        {
+            BulletRect();
+        }   
     }
     
     public Rect getRect()
@@ -62,7 +68,7 @@ public class bulletRounds
         State = null;
     }
     
-    public String status()
+    public String getState()
     {
         return State;
     }
