@@ -1,0 +1,43 @@
+public class DataTracker
+{
+    private int TopX;
+    private int TopY;
+    private int BottX;
+    private int BottY;
+    public DataTracker()
+    {
+        
+    }
+    
+    public void reportUpdateTop( int spaceX, int spaceY )
+    {
+        this.spaceX = TopX;
+        this.spaceY = TopY;
+    }
+    
+    public void reportUpdateBott( int spaceX, int spaceY )
+    {
+        this.spaceX = TopX;
+        this.spaceY = TopY;
+    }
+    
+    public void grabTopX()
+    {
+        return TopX;
+    }
+    
+    public void grabBottX()
+    {
+        return BottX;
+    }
+    
+    public void grabTopY()
+    {
+        return TopY;
+    }
+    
+    public void grabBottY()
+    {
+        return BottY;
+    }
+}    
