@@ -60,12 +60,8 @@ public class AndroidGal extends Activity implements OnTouchListener
 	{
 		super.onCreate( savedInstanceState );
         
+        // Initilizing the dataTracker
 		datTrack = new DataTracker();
-		// Values that should only be changed by the Space Ship direction and collision
-		topSrcRect = new Rect( 350, 1180, 450, 1280 );
-		
-		// Never change value
-		bottomSrcRect = new Rect( 350, 0, 450, 100 );
 		
         tSpaceShip = new SpaceShip( this, BLUE, "TOP", RED );
         bSpaceShip = new SpaceShip( this, YELLOW, "BOTTOM", YELLOW );
@@ -83,14 +79,11 @@ public class AndroidGal extends Activity implements OnTouchListener
 		// Requesting the fullscreen for the activity
    		requestWindowFeature( Window.FEATURE_NO_TITLE );
         getWindow().setFlags( WindowManager.LayoutParams.FLAG_FULLSCREEN,WindowManager.LayoutParams.FLAG_FULLSCREEN );
-        view.setSystemUiVisibility(View.SYSTEM_UI_FLAG_HIDE_NAVIGATION);
+        view.setSystemUiVisibility (View.SYSTEM_UI_FLAG_HIDE_NAVIGATION);
         
 		// Starting up the rendering
 		renderView = new FastRenderView( this );
 		renderView.setOnTouchListener( this );
-
-		Log.d( "onCreate", "contentViewset" );
-
 		setContentView( renderView );
 	}
 
@@ -218,8 +211,10 @@ public class AndroidGal extends Activity implements OnTouchListener
 				int width = canvas.getWidth();
 				int height = canvas.getHeight();
 
-				canvas.drawBitmap(tSpaceShip.getBitmap(), topSrcRect.left, topSrcRect.top, null);
-				canvas.drawBitmap(bSpaceShip.getBitmap(), bottomSrcRect.left, topSrcRect.top, null);
+				canvas.drawBitmap( tSpaceShip.getBitmap(), datTrack.getTopX(), datTrack.getTopY(), null );
+				canvas.drawBitmap( bSpaceShip.getBitmap(), datTrack.getBottX(), datTrack.getTopY(), null );
+				
+				tSpaceShip.getRect();
 
 				// Cleaning and re-orientating
 				holder.unlockCanvasAndPost( canvas );
@@ -248,7 +243,7 @@ public class AndroidGal extends Activity implements OnTouchListener
         
 	}
     
-        public class SpaceShip
+    public class SpaceShip
     {
      	private int clipStat;
      	private boolean clipFull;
@@ -264,22 +259,36 @@ public class AndroidGal extends Activity implements OnTouchListener
     	private int shotsFired;
     	private float reloadStartTime;
     	private int reloadCount;
+    	private int X;
+    	private int Y;
     	Paint shotPaint;
  	
     	public SpaceShip( Context myContext, int clr, String topBottom, int shotColor )
     	{
     		Log.d( "SpaceClass", "Constructor works" );
+    		
     		// Initalizing
     		clipFull = true;
     		reloadLoop = true;
     		Colr = clr;
     		context = myContext;
     		bulletArray = new ArrayList<Object>();
+    		
     		// If to initalize
     		if ( topBottom == "BOTTOM" )
-    			pos = 2;
+    		{
+				X = 350;
+				Y = 1180;
+				pos = 2;
+    			datTrack.reportUpdateBott( X, Y ) 
+    		}
     		if ( topBottom == "TOP" )
+    		{
+    			X = 350;
+    			Y = 0;
     			pos = 1;
+    			datTrack.reportUpdate( X, Y );
+    		}
     		
     		// If to initalize color
     		if ( shotColor == BLUE )
@@ -378,7 +387,7 @@ public class AndroidGal extends Activity implements OnTouchListener
     		{	
     			for ( int i = 0; i <= bulletArray.size(); i++ )
     			{
-    				Bullet o = (Bullet) bulletArray.get( i );
+    				Bullet o = ( Bullet ) bulletArray.get( i );
     				if ( o.getState() ==  0 )
     				{
     					o = new Bullet( pos );
@@ -388,9 +397,44 @@ public class AndroidGal extends Activity implements OnTouchListener
     				{	
     					bulletArray.add( new Bullet( pos ) );
     					break;
-    				}	
+    				}			
     			}
     		}
+    	}
+    	
+    	public void updatePos( float deltaTime )
+    	{
+    		float deltaMove = 5 * deltaTime;
+    		if ( direction == LEFT && pos == 2 )
+    		{
+    			X = X - deltaMove;
+    			datTrack.reportUpdateBott( X, Y );
+    		}
+    		
+    		if ( direction == RIGHT && pos == 2 )
+    		{
+    			X = X + deltaMove;
+    			datTrack.reportUpdateBott( X, Y );
+    		}
+    		
+    		if ( direction == LEFT && pos == 1 )
+    		{
+    			X = X + deltaMove;
+    			datTrack.reportUpdateTop( X, Y );
+    		}
+    		
+    		if ( direction == RIGHT && pos == 1 )
+    		{
+    			X = X - deltaMove;
+    			datTrack.reportUpdateTop( X, Y );
+    		}
+    		
+    		if ( direction == null )
+    		{
+    			datTrack.reportUpdateTop( X, Y );
+    		}
+    		
+    		collisionCheck();
     	}
     	
     	public void setImgAddress()
@@ -418,7 +462,6 @@ public class AndroidGal extends Activity implements OnTouchListener
     		{
     			img = "null";
     		}
-    		
     		Log.d( "SpaceClass", img );
     	}
     	
@@ -448,14 +491,15 @@ public class AndroidGal extends Activity implements OnTouchListener
     		bitmap.recycle();
     	}
     	
-    	public int height()
+    	public void draw( Canvas canvas, float deltaTime )
     	{
-    		return bitmap.getHeight();
-    	}
-    	
-    	public int width()
-    	{
-    		return bitmap.getWidth();
+    		canvas.drawBitmap( getBitmap, X, Y, null );
+    		for ( i = 0; i <= bulletArray.size(); i++ )
+    		{
+    			Bullet o = ( Bullet ) bulletArray.get( i );
+    			canvas.drawRect( o.getRect(), shotPaint );
+    		}
+    		updatePos( deltaTime );
     	}
 	}
     
@@ -491,7 +535,7 @@ public class AndroidGal extends Activity implements OnTouchListener
             
             public void updatePos( float deltaTime )
             {
-                float deltaMove = 5 * deltaTime;
+                float deltaMove = 10 * deltaTime;
                 
                 if ( direction == UP )
                     Y += deltaMove;
@@ -516,9 +560,9 @@ public class AndroidGal extends Activity implements OnTouchListener
                 }   
             }
             
-            public Rect getRect( float deltaMove )
+            public Rect getRect( float deltaTime )
             {	
-            	updatePos( deltaMove );
+            	updatePos( deltaTime );
                 return posRect;
             }
              
@@ -554,8 +598,8 @@ public class AndroidGal extends Activity implements OnTouchListener
             
             public void reportUpdateBott( int spaceX, int spaceY )
             {
-                spaceX = TopX;
-                spaceY = TopY;
+                spaceX = BottX;
+                spaceY = BottY;
             }
             
             public int grabTopX()
