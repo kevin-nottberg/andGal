@@ -210,11 +210,9 @@ public class AndroidGal extends Activity implements OnTouchListener
 				paint.setStyle( Style.FILL );
 				int width = canvas.getWidth();
 				int height = canvas.getHeight();
-
-				canvas.drawBitmap( tSpaceShip.getBitmap(), datTrack.getTopX(), datTrack.getTopY(), null );
-				canvas.drawBitmap( bSpaceShip.getBitmap(), datTrack.getBottX(), datTrack.getTopY(), null );
 				
-				tSpaceShip.getRect();
+				tSpaceShip.draw( canvas, deltaTime );
+				BSpaceShip.draw( canvas, deltaTime );
 
 				// Cleaning and re-orientating
 				holder.unlockCanvasAndPost( canvas );
@@ -287,7 +285,7 @@ public class AndroidGal extends Activity implements OnTouchListener
     			X = 350;
     			Y = 0;
     			pos = 1;
-    			datTrack.reportUpdate( X, Y );
+    			datTrack.reportUpdateTop( X, Y );
     		}
     		
     		// If to initalize color
@@ -437,6 +435,18 @@ public class AndroidGal extends Activity implements OnTouchListener
     		collisionCheck();
     	}
     	
+    	public void collisionCheck()
+    	{
+   			if ( ( X + 100 ) >= 800 )
+   				direction = null;
+   				X = ( 800 - 101 );
+   			if ( X <= 0 )
+   			{
+   				direction = null;
+   				X = 1;
+    		}
+    	}
+    	
     	public void setImgAddress()
     	{
     		Log.d( "SpaceClass", "Img address Called" );
@@ -497,7 +507,7 @@ public class AndroidGal extends Activity implements OnTouchListener
     		for ( i = 0; i <= bulletArray.size(); i++ )
     		{
     			Bullet o = ( Bullet ) bulletArray.get( i );
-    			canvas.drawRect( o.getRect(), shotPaint );
+    			canvas.drawRect( o.getRect( deltaTime ), shotPaint );
     		}
     		updatePos( deltaTime );
     	}
@@ -519,11 +529,11 @@ public class AndroidGal extends Activity implements OnTouchListener
                 if ( spaceShipInt == 1 )
                     direction = DOWN;
                     X = datTrack.grabTopX();
-                    Y = ( datTrack.grabTopY() + 101 ); 
+                    Y = ( datTrack.grabTopY() - 101 ); 
                 if ( spaceShipInt == 2 )
                     direction = UP;
                     X = datTrack.grabBottX();
-                    Y = datTrack.grabBottY();
+                    Y = datTrack.grabBottY() - 50;
                     
                 BulletRect();
             }
@@ -550,7 +560,7 @@ public class AndroidGal extends Activity implements OnTouchListener
                 {
                     destroy();
                 }
-                else if ( spaceShipInt == 2 && Y == ( datTrack.grabBottY() + 100) )
+                else if ( spaceShipInt == 2 && Y == ( datTrack.grabBottY() + 100 ) )
                 {
                     destroy();
                 }
@@ -585,9 +595,12 @@ public class AndroidGal extends Activity implements OnTouchListener
             private int TopY;
             private int BottX;
             private int BottY;
+            private int TopHealth;
+            private int BottHealth;
             public DataTracker()
             {
-                
+                TopHealth = 100;
+                BottHealth = 100;
             }
             
             public void reportUpdateTop( int spaceX, int spaceY )
@@ -602,6 +615,18 @@ public class AndroidGal extends Activity implements OnTouchListener
                 spaceY = BottY;
             }
             
+            public void bulletHit( int pos )
+            {
+            	if ( pos == 1 )
+            	{
+            		BottHealth - 5;
+            	}
+            	
+            	if ( pos == 2 )
+            	{
+            		TopHealth - 5;
+            	}
+            }	
             public int grabTopX()
             {
                 return TopX;
