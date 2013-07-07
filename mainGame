@@ -2,6 +2,8 @@ package com.android.andGal.mainGame;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.List;
 
 import android.os.Bundle;
 import android.app.Activity;
@@ -24,26 +26,49 @@ import android.view.View.OnTouchListener;
 import android.view.Window;
 import android.view.WindowManager;
 
+
 public class AndroidGal extends Activity implements OnTouchListener
 {
  // All global objects needed
     FastRenderView renderView;
+    View view;
     
     SpaceShip tSpaceShip;
     SpaceShip bSpaceShip;
+    
+    Rect topSrcRect;
+    Rect bottomSrcRect;
     
     int BLUE = 1;
     int YELLOW = 2;
     int RED = 3;
     int GREEN = 4;
     
+    int LEFT = 1;
+    int RIGHT = 2;
+    int UP = 3;
+    int DOWN = 4;
+    
+    int topLeft;
+    int topTop;
+    int bottomLeft;
+    int bottomTop;
+    DataTracker datTrack;
+    
 
 	public void onCreate( Bundle savedInstanceState )
 	{
 		super.onCreate( savedInstanceState );
         
-        tSpaceShip = new SpaceShip( this, BLUE );
-        bSpaceShip = new SpaceShip( this, YELLOW );
+		datTrack = new DataTracker();
+		// Values that should only be changed by the Space Ship direction and collision
+		topSrcRect = new Rect( 350, 1180, 450, 1280 );
+		
+		// Never change value
+		bottomSrcRect = new Rect( 350, 0, 450, 100 );
+		
+        tSpaceShip = new SpaceShip( this, BLUE, "TOP", RED );
+        bSpaceShip = new SpaceShip( this, YELLOW, "BOTTOM", YELLOW );
         
         tSpaceShip.setImgAddress();
         bSpaceShip.setImgAddress();
@@ -53,11 +78,13 @@ public class AndroidGal extends Activity implements OnTouchListener
    		
    		Log.d( "onCreate", "instillizing done" );
    		
+   		view = new View( this );
+   		
 		// Requesting the fullscreen for the activity
-		requestWindowFeature( Window.FEATURE_NO_TITLE );
-		getWindow().setFlags( WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN );
- 		
- 		
+   		requestWindowFeature( Window.FEATURE_NO_TITLE );
+        getWindow().setFlags( WindowManager.LayoutParams.FLAG_FULLSCREEN,WindowManager.LayoutParams.FLAG_FULLSCREEN );
+        view.setSystemUiVisibility(View.SYSTEM_UI_FLAG_HIDE_NAVIGATION);
+        
 		// Starting up the rendering
 		renderView = new FastRenderView( this );
 		renderView.setOnTouchListener( this );
@@ -86,16 +113,47 @@ public class AndroidGal extends Activity implements OnTouchListener
 				case MotionEvent.ACTION_DOWN:
 				case MotionEvent.ACTION_POINTER_DOWN:
 				case MotionEvent.ACTION_MOVE:
+					// Top player button eval
+					if ( MotionEventCompat.getY( event, i ) <= halfHeight )
+					{
+						if ( MotionEventCompat.getX( event, i ) >= 700 && MotionEventCompat.getY( event, i ) <= 100 )
+						{
+							tSpaceShip.direction( RIGHT );
+						}
+						
+						if ( MotionEventCompat.getX( event, i ) <= 699 && MotionEventCompat.getY( event, i ) <= 100 )
+						{
+							if ( MotionEventCompat.getX( event, i ) >= 599 && MotionEventCompat.getY( event, i ) <= 100 )
+							{
+								tSpaceShip.direction( LEFT );
+							}	
+						}
+						
+						if ( MotionEventCompat.getX( event, i ) <= 100 && MotionEventCompat.getY( event, i ) <= 100 )
+						{
+							tSpaceShip.shoot();
+						}	
+					}
+					
+					// Bottom Player button eval
 					if ( MotionEventCompat.getY( event, i ) < halfHeight )
 					{
-						//curPointPosXtwo = (int) MotionEventCompat.getX( event, i );
-						// curPointPosYtwo = (int) MotionEventCompat.getY( event, i );
-					}
-					if ( MotionEventCompat.getY( event, i ) > halfHeight )
-					{
-						//curPointPosXone = (int) MotionEventCompat.getX( event, i );
-						// curPointPosYone = (int) MotionEventCompat.getY( event, i );
-					}
+						if ( MotionEventCompat.getX( event, i ) >= 700 && MotionEventCompat.getY( event, i ) > 1180 )
+						{
+							bSpaceShip.shoot();
+						}	
+					
+						if ( MotionEventCompat.getX( event, i ) >= 101 && MotionEventCompat.getX( event, i ) <= 301 )
+						{
+							if ( MotionEventCompat.getY( event, i ) >= 1180 )
+								bSpaceShip.direction( RIGHT );
+						}
+					
+						if ( MotionEventCompat.getX( event, i ) <= 100 && MotionEventCompat.getY( event, i ) >= 1180 )
+						{
+							bSpaceShip.direction( LEFT );
+						}
+					}	
 			break;
 			}
 		}	
@@ -160,8 +218,8 @@ public class AndroidGal extends Activity implements OnTouchListener
 				int width = canvas.getWidth();
 				int height = canvas.getHeight();
 
-				canvas.drawBitmap( tSpaceShip.getBitmap(), 350, 0, null );
-				canvas.drawBitmap( bSpaceShip.getBitmap(), 350, 1180, null );
+				canvas.drawBitmap(tSpaceShip.getBitmap(), topSrcRect.left, topSrcRect.top, null);
+				canvas.drawBitmap(bSpaceShip.getBitmap(), bottomSrcRect.left, topSrcRect.top, null);
 
 				// Cleaning and re-orientating
 				holder.unlockCanvasAndPost( canvas );
@@ -193,88 +251,166 @@ public class AndroidGal extends Activity implements OnTouchListener
         public class SpaceShip
     {
      	private int clipStat;
- 		private int Color; 
-		private int reloadLoop;
-		private int bulletRX;
-		private int bulletTY;
-		private int bulletLX;
-		private int bulletBY;
+     	private boolean clipFull;
+ 		private int Colr; 
+		private boolean reloadLoop;
 		AssetManager assets;
     	Bitmap bitmap;
     	Context context;
-    	String img;
+    	private List<Object> bulletArray;
+    	private String img;
+    	private int direction;
+    	private int pos;
+    	private int shotsFired;
+    	private float reloadStartTime;
+    	private int reloadCount;
+    	Paint shotPaint;
  	
-    	public SpaceShip( Context myContext, int clr )
+    	public SpaceShip( Context myContext, int clr, String topBottom, int shotColor )
     	{
     		Log.d( "SpaceClass", "Constructor works" );
-    		clipStat = 6;
-    		reloadLoop = 0;
-    		Color = clr;
+    		// Initalizing
+    		clipFull = true;
+    		reloadLoop = true;
+    		Colr = clr;
     		context = myContext;
+    		bulletArray = new ArrayList<Object>();
+    		// If to initalize
+    		if ( topBottom == "BOTTOM" )
+    			pos = 2;
+    		if ( topBottom == "TOP" )
+    			pos = 1;
+    		
+    		// If to initalize color
+    		if ( shotColor == BLUE )
+    		{
+    			shotPaint.setColor( Color.BLUE );
+    		}
+    		else if ( shotColor == YELLOW )
+    		{
+    			shotPaint.setColor( Color.YELLOW );
+    		}
+    		else if ( shotColor == RED )
+    		{
+    			shotPaint.setColor( Color.RED );
+    		}
+    		else if ( shotColor == GREEN )
+    		{
+    			shotPaint.setColor( Color.GREEN );
+    		}
     	}
     	
     	public void shoot()
     	{
-    		if ( clipStat == 6 )
+    		if ( reloadLoop == true && clipFull == true )
     		{
-    			clipStat = 5;
-    		}
+    			shotsFired++;
+    			
+    			if ( shotsFired == 0 )
+    			{
+    				clipStat = 6;
+    			}
     		
-    		if ( clipStat == 5 )
+    			if ( shotsFired == 1 )
+    			{
+    				createNewProjectile();
+    				clipStat = 5;
+    			}
+    		
+    			if ( shotsFired == 2 )
+    			{
+    				createNewProjectile();
+    				clipStat = 4;
+    			}
+    		
+    			if ( shotsFired == 3 )
+    			{
+    				createNewProjectile();
+    				clipStat = 3;
+    			}
+    		
+    			if ( shotsFired == 4 )
+    			{
+    				createNewProjectile();
+    				clipStat = 2;
+    			}
+    		
+    			if ( shotsFired == 5 )
+    			{
+    				createNewProjectile();
+    				clipStat = 1;
+    			}
+    		
+    			if ( shotsFired == 6 )
+    			{
+    				createNewProjectile();
+    				shotsFired = 0;
+    				clipFull = false;
+    				reloadLoop = false;
+    			}
+    		}
+    		else { reload(); }
+    	}
+    	
+    	public void reload()
+    	{
+    		if ( reloadCount <= 0 )
+    			reloadCount++;
+    			reloadStartTime = System.nanoTime();
+    		if ( ( ( System.nanoTime() - reloadStartTime ) * 1000000000.0f ) >= 2.0 )
+    			clipFull = true;
+    			reloadLoop = true;
+    			reloadCount = 0;
+    	}
+    	
+    	public void direction( int directionStat )
+    	{
+    		direction = directionStat;
+    	}
+    	
+    	public void createNewProjectile()
+    	{
+    		if ( bulletArray.size() <= 0 )
     		{
-    			clipStat = 4;
+    			bulletArray.add( new Bullet( pos ) );
     		}
-    		
-    		if ( clipStat == 4 )
-    		{
-    			clipStat = 3;
+    		if ( bulletArray.size() >= 1 )
+    		{	
+    			for ( int i = 0; i <= bulletArray.size(); i++ )
+    			{
+    				Bullet o = (Bullet) bulletArray.get( i );
+    				if ( o.getState() ==  0 )
+    				{
+    					o = new Bullet( pos );
+    					break;
+    				}	
+    				if ( o.getState() == 0 && i == bulletArray.size() )
+    				{	
+    					bulletArray.add( new Bullet( pos ) );
+    					break;
+    				}	
+    			}
     		}
-    		
-    		if ( clipStat == 3 )
-    		{
-    			clipStat = 2;
-    		}
-    		
-    		if ( clipStat == 2 )
-    		{
-    			clipStat = 1;
-    		}
-    		
-    		if ( clipStat == 1 )
-    		{
-    			clipStat = 0;
-    		}
-    		
-    		if ( clipStat == 0 )
-    		{
-    			reloadLoop++;
-    		}
-    		
-  			if ( clipStat == 0 && reloadLoop == 1 )
-  			{
-  				reloadLoop = 0;
-  				clipStat = 6;
-  			}
     	}
     	
     	public void setImgAddress()
     	{
     		Log.d( "SpaceClass", "Img address Called" );
-    		if ( Color == BLUE )
+    		if ( Colr == BLUE )
     		{	
     			Log.d( "SpaceClass", "Blue eval working" );
 				img = "andgal_space_blu.png";
     		}
-    		else if ( Color == YELLOW )
+    		else if ( Colr == YELLOW )
     		{
     			Log.d( "SpaceClass", "Yellow eval working" );
 				img = "andgal_space_ylw.png";
     		}
-    		else if ( Color == RED )
+    		else if ( Colr == RED )
     		{
     			img = "andgal_space_red.png";
     		}
-    		else if ( Color == GREEN )
+    		else if ( Colr == GREEN )
     		{
     			img = "andgal_spacee_grn.png";
     		}
@@ -322,4 +458,124 @@ public class AndroidGal extends Activity implements OnTouchListener
     		return bitmap.getWidth();
     	}
 	}
+    
+        public class Bullet
+        {
+        	Rect posRect;
+            private int spaceShipInt;
+            private int direction;
+            private int X;
+            private int Y;
+            private int State;
+            
+            public Bullet( int spaceShipInt )
+            {
+                this.spaceShipInt = spaceShipInt;
+                int State = 1;
+                if ( spaceShipInt == 1 )
+                    direction = DOWN;
+                    X = datTrack.grabTopX();
+                    Y = ( datTrack.grabTopY() + 101 ); 
+                if ( spaceShipInt == 2 )
+                    direction = UP;
+                    X = datTrack.grabBottX();
+                    Y = datTrack.grabBottY();
+                    
+                BulletRect();
+            }
+            
+            public void BulletRect()
+            {
+                posRect = new Rect( X, Y, ( X + 20 ), ( Y + 50 ) );
+            }
+            
+            public void updatePos( float deltaTime )
+            {
+                float deltaMove = 5 * deltaTime;
+                
+                if ( direction == UP )
+                    Y += deltaMove;
+                if ( direction == DOWN )
+                    Y -= deltaMove;
+                collisionCheck();        
+            }
+            
+            public void collisionCheck()
+            {
+                if ( spaceShipInt == 1 && ( Y + 50 ) == datTrack.grabTopY() )
+                {
+                    destroy();
+                }
+                else if ( spaceShipInt == 2 && Y == ( datTrack.grabBottY() + 100) )
+                {
+                    destroy();
+                }
+                else 
+                {
+                    BulletRect();
+                }   
+            }
+            
+            public Rect getRect( float deltaMove )
+            {	
+            	updatePos( deltaMove );
+                return posRect;
+            }
+             
+            public void destroy()
+            { 
+                X = 0;
+                Y = 0;
+                State = 0; 
+            }
+            
+            public int getState()
+            {
+                return State;
+            }
+        }
+        
+        public class DataTracker
+        {
+            private int TopX;
+            private int TopY;
+            private int BottX;
+            private int BottY;
+            public DataTracker()
+            {
+                
+            }
+            
+            public void reportUpdateTop( int spaceX, int spaceY )
+            {
+                spaceX = TopX;
+                spaceY = TopY;
+            }
+            
+            public void reportUpdateBott( int spaceX, int spaceY )
+            {
+                spaceX = TopX;
+                spaceY = TopY;
+            }
+            
+            public int grabTopX()
+            {
+                return TopX;
+            }
+            
+            public int grabBottX()
+            {
+                return BottX;
+            }
+            
+            public int grabTopY()
+            {
+                return TopY;
+            }
+            
+            public int grabBottY()
+            {
+                return BottY;
+            }
+        }
 }
