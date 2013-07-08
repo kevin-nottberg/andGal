@@ -35,10 +35,7 @@ public class AndroidGal extends Activity implements OnTouchListener
     
     SpaceShip tSpaceShip;
     SpaceShip bSpaceShip;
-    
-    Rect topSrcRect;
-    Rect bottomSrcRect;
-    
+   
     int BLUE = 1;
     int YELLOW = 2;
     int RED = 3;
@@ -79,7 +76,6 @@ public class AndroidGal extends Activity implements OnTouchListener
 		// Requesting the fullscreen for the activity
    		requestWindowFeature( Window.FEATURE_NO_TITLE );
         getWindow().setFlags( WindowManager.LayoutParams.FLAG_FULLSCREEN,WindowManager.LayoutParams.FLAG_FULLSCREEN );
-        view.setSystemUiVisibility (View.SYSTEM_UI_FLAG_HIDE_NAVIGATION);
         
 		// Starting up the rendering
 		renderView = new FastRenderView( this );
@@ -243,23 +239,29 @@ public class AndroidGal extends Activity implements OnTouchListener
     
     public class SpaceShip
     {
+    	// Shot hndler variables
      	private int clipStat;
      	private boolean clipFull;
- 		private int Colr; 
-		private boolean reloadLoop;
-		AssetManager assets;
-    	Bitmap bitmap;
-    	Context context;
-    	private List<Object> bulletArray;
-    	private String img;
-    	private int direction;
-    	private int pos;
-    	private int shotsFired;
+     	private int shotsFired;
     	private float reloadStartTime;
     	private int reloadCount;
+    	private List<Object> bulletArray;
+    	
+    	// Canvas variables
+ 		private int Colr;
+    	private String img;
+    	Paint shotPaint;
+    	
+    	// Posistion variables 
     	private int X;
     	private int Y;
-    	Paint shotPaint;
+    	private int direction;
+    	private int pos;
+    	
+    	// Bitmap hndler
+    	Context context;
+    	AssetManager assets;
+    	Bitmap bitmap;
  	
     	public SpaceShip( Context myContext, int clr, String topBottom, int shotColor )
     	{
@@ -280,6 +282,7 @@ public class AndroidGal extends Activity implements OnTouchListener
 				pos = 2;
     			datTrack.reportUpdateBott( X, Y ) 
     		}
+    		
     		if ( topBottom == "TOP" )
     		{
     			X = 350;
@@ -513,138 +516,140 @@ public class AndroidGal extends Activity implements OnTouchListener
     	}
 	}
     
-        public class Bullet
-        {
-        	Rect posRect;
-            private int spaceShipInt;
-            private int direction;
-            private int X;
-            private int Y;
-            private int State;
-            
-            public Bullet( int spaceShipInt )
-            {
-                this.spaceShipInt = spaceShipInt;
-                int State = 1;
-                if ( spaceShipInt == 1 )
-                    direction = DOWN;
-                    X = datTrack.grabTopX();
-                    Y = ( datTrack.grabTopY() - 101 ); 
-                if ( spaceShipInt == 2 )
-                    direction = UP;
-                    X = datTrack.grabBottX();
-                    Y = datTrack.grabBottY() - 50;
-                    
-                BulletRect();
-            }
-            
-            public void BulletRect()
-            {
-                posRect = new Rect( X, Y, ( X + 20 ), ( Y + 50 ) );
-            }
-            
-            public void updatePos( float deltaTime )
-            {
-                float deltaMove = 10 * deltaTime;
-                
-                if ( direction == UP )
-                    Y += deltaMove;
-                if ( direction == DOWN )
-                    Y -= deltaMove;
-                collisionCheck();        
-            }
-            
-            public void collisionCheck()
-            {
-                if ( spaceShipInt == 1 && ( Y + 50 ) == datTrack.grabTopY() )
-                {
-                    destroy();
-                }
-                else if ( spaceShipInt == 2 && Y == ( datTrack.grabBottY() + 100 ) )
-                {
-                    destroy();
-                }
-                else 
-                {
-                    BulletRect();
-                }   
-            }
-            
-            public Rect getRect( float deltaTime )
-            {	
-            	updatePos( deltaTime );
-                return posRect;
-            }
-             
-            public void destroy()
-            { 
-                X = 0;
-                Y = 0;
-                State = 0; 
-            }
-            
-            public int getState()
-            {
-                return State;
-            }
-        }
+	public class Bullet
+	{
+		Rect posRect;    
+		private int spaceShipInt;
+		private int direction;
+		private int X;
+		private int Y;
+		private int State;
         
-        public class DataTracker
+        public Bullet( int spaceShipInt )
         {
-            private int TopX;
-            private int TopY;
-            private int BottX;
-            private int BottY;
-            private int TopHealth;
-            private int BottHealth;
-            public DataTracker()
-            {
-                TopHealth = 100;
-                BottHealth = 100;
-            }
-            
-            public void reportUpdateTop( int spaceX, int spaceY )
-            {
-                spaceX = TopX;
-                spaceY = TopY;
-            }
-            
-            public void reportUpdateBott( int spaceX, int spaceY )
-            {
-                spaceX = BottX;
-                spaceY = BottY;
-            }
-            
-            public void bulletHit( int pos )
-            {
-            	if ( pos == 1 )
-            	{
-            		BottHealth - 5;
-            	}
-            	
-            	if ( pos == 2 )
-            	{
-            		TopHealth - 5;
-            	}
-            }	
-            public int grabTopX()
-            {
-                return TopX;
-            }
-            
-            public int grabBottX()
-            {
-                return BottX;
-            }
-            
-            public int grabTopY()
-            {
-                return TopY;
-            }
-            
-            public int grabBottY()
-            {
-                return BottY;
-            }
+        	this.spaceShipInt = spaceShipInt;
+        	int State = 1;
+            if ( spaceShipInt == 1 )
+            	direction = DOWN;
+            	X = datTrack.grabTopX();
+            	Y = ( datTrack.grabTopY() - 101 ); 
+            if ( spaceShipInt == 2 )
+              	direction = UP;
+               	X = datTrack.grabBottX();
+              	Y = datTrack.grabBottY() - 50;
+              	
+            BulletRect();
         }
+            
+        public void BulletRect()
+        {
+ 	        posRect = new Rect( X, Y, ( X + 20 ), ( Y + 50 ) );
+        }
+            
+        public void updatePos( float deltaTime )
+        {
+        	float deltaMove = 10 * deltaTime;
+                
+        	if ( direction == UP )
+            	Y += deltaMove;
+            if ( direction == DOWN )
+             	Y -= deltaMove;
+            collisionCheck();        
+        }
+            
+     	public void collisionCheck()
+   	    {	
+   	    	if ( spaceShipInt == 1 && ( Y + 50 ) == datTrack.grabTopY() )
+      	    {
+   	            destroy();
+   	      	}
+         	else if ( spaceShipInt == 2 && Y == ( datTrack.grabBottY() + 100 ) )
+            {
+          	   destroy();
+          	}
+        	else 
+         	{
+       	        BulletRect();
+   	        }   
+   	   	}
+            
+       	public Rect getRect( float deltaTime )
+   	    {	
+        	updatePos( deltaTime );
+        	return posRect;
+       	}
+             
+     	public void destroy()
+      	{ 
+          	X = 0;
+      	    Y = 0;
+  	        State = 0;
+  	   	}
+            
+   		public int getState()
+	  	{
+ 	        return State;
+		}
+	}
+        
+   	public class DataTracker
+   	{
+     	private int TopX;
+   	    private int TopY;
+  	 	private int BottX;
+      	private int BottY;
+      	private int TopHealth;
+   	    private int BottHealth;
+   	    
+   	    public DataTracker()
+   		{
+        	TopHealth = 100;
+      	    BottHealth = 100;
+   		}
+            
+     	public void reportUpdateTop( int spaceX, int spaceY )
+      	{
+ 	        spaceX = TopX;
+ 	        spaceY = TopY;
+     	}
+            
+    	public void reportUpdateBott( int spaceX, int spaceY )
+     	{
+       		spaceX = BottX;
+       		spaceY = BottY;
+      	}
+            
+     	public void bulletHit( int pos )
+      	{
+        	if ( pos == 1 )
+           	{
+           		BottHealth - 5;
+           	}
+            	
+            if ( pos == 2 )
+            {
+            	TopHealth - 5;
+            }
+		}            
+        	
+        public int grabTopX()
+       	{
+        	return TopX;
+      	}
+            
+     	public int grabBottX()
+      	{
+        	return BottX;
+       	}
+            
+    	public int grabTopY()
+      	{
+        	return TopY;
+       	}
+            
+      	public int grabBottY()
+      	{
+        	return BottY;
+      	}
+	}
 }
