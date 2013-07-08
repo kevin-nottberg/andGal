@@ -609,14 +609,14 @@ public class AndroidGal extends Activity implements OnTouchListener
             
      	public void reportUpdateTop( int spaceX, int spaceY )
       	{
- 	        spaceX = TopX;
- 	        spaceY = TopY;
+ 	        TopX = spaceX;
+ 	        TopY = spaceY;
      	}
             
     	public void reportUpdateBott( int spaceX, int spaceY )
      	{
-       		spaceX = BottX;
-       		spaceY = BottY;
+       		BottX = spaceX;
+       		BottY = spaceY;
       	}
             
      	public void bulletHit( int pos )
