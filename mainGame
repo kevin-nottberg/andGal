@@ -279,7 +279,10 @@ public class AndroidGal extends Activity implements OnTouchListener
     	
     	// Canvas variables
  		private int Colr;
-    	private String img;
+    	private String shipImg;
+    	private String rightImg;
+    	private String leftImg;
+    	private String fireImg;
     	Paint shotPaint;
     	
     	// Posistion variables 
@@ -291,7 +294,10 @@ public class AndroidGal extends Activity implements OnTouchListener
     	// Bitmap hndler
     	Context context;
     	AssetManager assets;
-    	Bitmap bitmap;
+    	Bitmap shipBitmap;
+    	Bitmap rightDirBitmap;
+    	Bitmap leftDirBitmap;
+    	Bitmap fireBitmap;
  	
     	public SpaceShip( Context myContext, int clr, String topBottom, int shotColor )
     	{
