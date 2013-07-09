@@ -41,6 +41,7 @@ public class AndroidGal extends Activity implements OnTouchListener
     int RED = 3;
     int GREEN = 4;
     
+    int NULL = 0;
     int LEFT = 1;
     int RIGHT = 2;
     int UP = 3;
@@ -143,34 +144,34 @@ public class AndroidGal extends Activity implements OnTouchListener
 							bSpaceShip.direction( LEFT );
 						}
 					}
-				case ACTION_POINTER_UP:
-				case ACTION_UP:
+				case MotionEvent.ACTION_POINTER_UP:	
+					
 					if ( MotionEventCompat.getY( event, i ) < halfHeight )
 					{
 						
 					 	if ( MotionEventCompat.getX( event, i ) >= 700 && MotionEventCompat.getY( event, i ) <= 100 )
 					 	{
-					 		tSpaceShip.direction( null );
+					 		tSpaceShip.direction( NULL );
 					 	}
 					 	
 					 	if ( MotionEventCompat.getX( event, i ) <= 699 && MotionEventCompat.getX( event, i ) >= 599 )
 					 	{
 					 		if( MotionEventCompat.getY( event, i ) <= 101 )
-					 			tSpaceShip.direction( null );
+					 			tSpaceShip.direction( NULL );
 					 	}
 					}
 					
 					if ( MotionEventCompat.getY( event, i ) > halfHeight )
 					{
-						if ( MotionEventCompat.getX( event, i ) <= 100 && MotionEventCompat.getY( evnet, i ) <= ( view.getHeight() - 100 ) )
+						if ( MotionEventCompat.getX( event, i ) <= 100 && MotionEventCompat.getY( event, i ) <= ( view.getHeight() - 100 ) )
 						{
-							bSpaceShip.direction( null );
+							bSpaceShip.direction( NULL );
 						}
 						
 						if ( MotionEventCompat.getX( event, i ) >= 101 && MotionEventCompat.getY( event, i ) <= ( view.getHeight() - 100 ) )
 						{
 							if ( MotionEventCompat.getX( event, i ) <= 201 )
-								bSpaceShip.direction( null );
+								bSpaceShip.direction( NULL );
 						}
 					}
 			break;
@@ -238,7 +239,7 @@ public class AndroidGal extends Activity implements OnTouchListener
 				int height = canvas.getHeight();
 				
 				tSpaceShip.draw( canvas, deltaTime );
-				BSpaceShip.draw( canvas, deltaTime );
+				bSpaceShip.draw( canvas, deltaTime );
 
 				// Cleaning and re-orientating
 				holder.unlockCanvasAndPost( canvas );
@@ -272,6 +273,7 @@ public class AndroidGal extends Activity implements OnTouchListener
     	// Shot hndler variables
      	private int clipStat;
      	private boolean clipFull;
+     	private boolean reloadLoop;
      	private int shotsFired;
     	private float reloadStartTime;
     	private int reloadCount;
@@ -316,7 +318,7 @@ public class AndroidGal extends Activity implements OnTouchListener
 				X = 350;
 				Y = 1180;
 				pos = 2;
-    			datTrack.reportUpdateBott( X, Y ) 
+    			datTrack.reportUpdateBott( X, Y ); 
     		}
     		
     		if ( topBottom == "TOP" )
@@ -441,32 +443,32 @@ public class AndroidGal extends Activity implements OnTouchListener
     	
     	public void updatePos( float deltaTime )
     	{
-    		float deltaMove = 5 * deltaTime;
+    		int deltaMove = (int) (5 * deltaTime);
     		if ( direction == LEFT && pos == 2 )
     		{
     			X = X - deltaMove;
     			datTrack.reportUpdateBott( X, Y );
     		}
     		
-    		if ( direction == RIGHT && pos == 2 )
+    		else if ( direction == RIGHT && pos == 2 )
     		{
     			X = X + deltaMove;
     			datTrack.reportUpdateBott( X, Y );
     		}
     		
-    		if ( direction == LEFT && pos == 1 )
+    		else if ( direction == LEFT && pos == 1 )
     		{
     			X = X + deltaMove;
     			datTrack.reportUpdateTop( X, Y );
     		}
     		
-    		if ( direction == RIGHT && pos == 1 )
+    		else if ( direction == RIGHT && pos == 1 )
     		{
     			X = X - deltaMove;
     			datTrack.reportUpdateTop( X, Y );
     		}
     		
-    		if ( direction == null )
+    		else if ( direction == NULL )
     		{
     			datTrack.reportUpdateTop( X, Y );
     		}
@@ -477,11 +479,11 @@ public class AndroidGal extends Activity implements OnTouchListener
     	public void collisionCheck()
     	{
    			if ( ( X + 100 ) >= 800 )
-   				direction = null;
+   				direction = NULL;
    				X = ( 800 - 101 );
    			if ( X <= 0 )
    			{
-   				direction = null;
+   				direction = NULL;
    				X = 1;
     		}
     	}
@@ -492,26 +494,36 @@ public class AndroidGal extends Activity implements OnTouchListener
     		if ( Colr == BLUE )
     		{	
     			Log.d( "SpaceClass", "Blue eval working" );
-				img = "andgal_space_blu.png";
+				shipImg = "andgal_space_blu.png";
     		}
     		else if ( Colr == YELLOW )
     		{
     			Log.d( "SpaceClass", "Yellow eval working" );
-				img = "andgal_space_ylw.png";
+				shipImg = "andgal_space_ylw.png";
     		}
     		else if ( Colr == RED )
     		{
-    			img = "andgal_space_red.png";
+    			shipImg = "andgal_space_red.png";
     		}
     		else if ( Colr == GREEN )
     		{
-    			img = "andgal_spacee_grn.png";
+    			shipImg = "andgal_spacee_grn.png";
     		}
     		else 
     		{
-    			img = "null";
+    			shipImg = "null";
     		}
-    		Log.d( "SpaceClass", img );
+    		Log.d( "SpaceClass", shipImg );
+    		
+    		if ( pos == 2 )
+    			fireImg = "andgal_fire_button_bottom.png";
+    			rightImg = "andgal_right_arrow.png";
+    			leftImg = "andgal_left_arrow.png";
+    			
+    		if ( pos == 1 )
+    			fireImg = "andgal_fire_button_top.png";
+    			leftImg = "andgal_right_arrow.png";
+    			rightImg = "andgal_left_arrow.png";
     	}
     	
     	public void createBitMap()
@@ -519,31 +531,89 @@ public class AndroidGal extends Activity implements OnTouchListener
     		try {
     			Log.d( "bitmapCalss", "Bitmap try called");
     			assets = context.getAssets();
-    			InputStream inputStream = assets.open( img );
-    			bitmap = BitmapFactory.decodeStream( inputStream );
+    			InputStream inputStream = assets.open( shipImg );
+    			shipBitmap = BitmapFactory.decodeStream( inputStream );
     			inputStream.close();
     		} catch (IOException e) {
     			Log.d( "bitmapClass", "Bitmap IO prob" );
     			// Spacer commet
     		} finally {
     		}
+    		
+    		try {
+    			assets = context.getAssets();
+    			InputStream inputStream = assets.open( rightImg );
+    			rightDirBitmap = BitmapFactory.decodeStream( inputStream );
+    			inputStream.close();
+    		} catch ( IOException e ){
+    			//spacer
+    		} finally {
+    		}
+    		
+    		try {
+    			assets = context.getAssets();
+    			InputStream inputStream = assets.open( leftImg );
+    			leftDirBitmap = BitmapFactory.decodeStream( inputStream );
+    			inputStream.close();
+    		} catch ( IOException e ){
+    			//spacer
+    		} finally {
+    		}
+    		
+    		try {
+    			assets = context.getAssets();
+    			InputStream inputStream = assets.open( fireImg );
+    			fireBitmap = BitmapFactory.decodeStream( inputStream );
+    			inputStream.close();
+    		} catch ( IOException e ){
+    			//spacer
+    		} finally {
+    		}
     	}
     	
-    	public Bitmap getBitmap()
+    	public Bitmap getShipBitmap()
     	{
     		Log.d( "bitmapClass", "getBitmap called" );
-    		return bitmap;
+    		return shipBitmap;
     	}
     	
-    	public void clearBitmap()
+    	public Bitmap getLeftDirBitmap()
     	{
-    		bitmap.recycle();
+    		return leftDirBitmap;
+    	}
+    	
+    	public Bitmap getRightDirBitmap()
+    	{
+    		return rightDirBitmap;
+    	}
+    	
+    	public Bitmap getFireBitmap()
+    	{
+    		return fireBitmap;
+    	}
+    	
+    	public void clearBitmaps()
+    	{
+    		shipBitmap.recycle();
+    		leftDirBitmap.recycle();
+    		rightDirBitmap.recycle();
+    		fireBitmap.recycle();
     	}
     	
     	public void draw( Canvas canvas, float deltaTime )
     	{
-    		canvas.drawBitmap( getBitmap, X, Y, null );
-    		for ( i = 0; i <= bulletArray.size(); i++ )
+    		canvas.drawBitmap( getShipBitmap(), X, Y, null );
+    		if ( pos == 1 )
+    			canvas.drawBitmap( getLeftDirBitmap(), 700, view.getHeight() - view.getHeight(), null );
+    			canvas.drawBitmap( getRightDirBitmap(), 699, view.getHeight() - view.getHeight(), null );
+    			canvas.drawBitmap( getFireBitmap(), 0, view.getHeight() - view.getHeight(), null );
+    		
+    		if ( pos == 2 )
+    			canvas.drawBitmap( getLeftDirBitmap(), 0, view.getHeight()- 100 , null );
+    			canvas.drawBitmap( getRightDirBitmap(), 101, view.getHeight() - 100, null);
+    			canvas.drawBitmap( getFireBitmap(), 700, view.getHeight() - 100, null);
+    			
+    		for ( int i = 0; i <= bulletArray.size(); i++ )
     		{
     			Bullet o = ( Bullet ) bulletArray.get( i );
     			canvas.drawRect( o.getRect( deltaTime ), shotPaint );
@@ -659,12 +729,12 @@ public class AndroidGal extends Activity implements OnTouchListener
       	{
         	if ( pos == 1 )
            	{
-           		BottHealth - 5;
+           		BottHealth =- 5;
            	}
             	
             if ( pos == 2 )
             {
-            	TopHealth - 5;
+            	TopHealth =- 5;
             }
 		}            
         	
