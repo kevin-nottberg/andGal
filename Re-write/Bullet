@@ -1,0 +1,39 @@
+package com.android.andGal.mainGame;
+
+import android.graphics.Paint;
+import android.graphics.Rect;
+
+public class Bullet extends Moveable { 
+	
+	private direction direction;
+	private Paint paint;
+	private Rect rect;
+  
+    public Bullet( int plr )
+    {
+    	if( plr == 1 ){
+    		//super.setPosition( X, Y );
+    		//super.setRates( 0,  -deltaY );
+    		direction = direction.UP;
+    	} else if( plr == 2 ){
+    		//super.setPostion( X, Y );
+    		//super.setRates( 0, deltaY );
+    		direction = direction.DOWN;
+    	}
+    	
+    }
+    
+    public void setColor( String Color )
+    {
+    	
+    }
+        
+    public void createRect()
+    {
+    	rect = new Rect();
+    	rect.top = (int) super.getY();
+    	rect.bottom = (int) super.getY() + 50;
+    	rect.left = (int) super.getX();
+    	rect.right = (int) super.getX() + 20;
+    }
+}
