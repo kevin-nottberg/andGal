@@ -1,0 +1,58 @@
+package com.android.andGal.mainGame;
+
+import android.graphics.Canvas;
+
+public class Moveable {
+	private Position pos;
+	private Rate rate;
+	private double X;
+	private double Y;
+
+	Moveable()
+	{
+		pos.setPosition(0, 0);
+		rate.nullRates();
+	}
+
+	void stopMovement()
+	{
+		rate.nullRates();
+	}
+	
+	void setRates( double newXRate, double newYRate )
+	{
+		rate.setRate(newXRate, newYRate);
+	}
+	
+	void setPosition( double X, double Y ){
+		X = this.X;
+		Y = this.Y;
+		
+		pos.setPosition(X, Y);
+	}
+	
+	void updatePosition( double deltaTime )
+	{
+		//Getting rates and doing the math to know how many pixels to move
+		double deltaX = ( rate.getXRate() * deltaTime );
+		double deltaY = ( rate.getYRate() * deltaTime );
+		
+		//Passing the new updates and passing that to the posistion to update X,Y cords
+		pos.updatePosition(deltaX, deltaY);
+	}
+	
+	void draw( Canvas canvas )
+	{
+		
+	}
+
+	public double getY() {
+		// TODO Auto-generated method stub
+		return Y;
+	}
+
+	public double getX() {
+		// TODO Auto-generated method stub
+		return X;
+	}
+}
