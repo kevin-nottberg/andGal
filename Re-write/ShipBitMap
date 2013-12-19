@@ -1,0 +1,150 @@
+package com.android.andGal.mainGame;
+
+import java.io.IOException;
+import java.io.InputStream;
+import android.content.Context;
+import android.content.res.AssetManager;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.util.Log;
+
+public class ShipBitMap {
+	
+	//Pos andr Color
+	int plr;
+	colorEnum shipColor;
+	
+	//Bitmaps
+	Bitmap shipBitmap;
+	Bitmap rightDirBitmap;
+	Bitmap leftDirBitmap;
+	Bitmap fireBitmap;
+	
+	//ShipImg points
+	private String shipImg;
+	private String rightImg;
+	private String leftImg;
+	private String fireImg;
+	
+	//Things
+	AssetManager assets;
+	Context context;
+	
+	public ShipBitMap( Context co, int player, colorEnum color ){
+		context = co;
+		plr = player;
+		shipColor = color;
+	}
+	
+	public void setImgAddress()
+	{
+		//Log.d( "SpaceClass", "Img address Called" );
+		if ( shipColor == colorEnum.BLUE )
+		{	
+			Log.d( "SpaceClass", "Blue eval working" );
+			shipImg = "andgal_space_blu.png";
+		}
+		else if ( shipColor == colorEnum.YELLOW )
+		{
+			Log.d( "SpaceClass", "Yellow eval working" );
+			shipImg = "andgal_space_ylw.png";
+		}
+		else if ( shipColor == colorEnum.RED )
+		{
+			shipImg = "andgal_space_red.png";
+		}
+		else if ( shipColor == colorEnum.GREEN )
+		{
+			shipImg = "andgal_spacee_grn.png";
+		}
+		else 
+		{
+			shipImg = "null";
+		}
+		
+		if ( plr == 2 )
+			fireImg = "andgal_fire_button_bottom.png";
+			rightImg = "andgal_right_arrow.png";
+			leftImg = "andgal_left_arrow.png";
+			
+		if ( plr == 1 )
+			fireImg = "andgal_fire_button_top.png";
+			leftImg = "andgal_right_arrow.png";
+			rightImg = "andgal_left_arrow.png";
+	}
+	
+	public void createBitMap()
+	{
+		try {
+			//Log.d( "bitmapCalss", "Bitmap try called");
+			assets = context.getAssets();
+			InputStream inputStream = assets.open( shipImg );
+			shipBitmap = BitmapFactory.decodeStream( inputStream );
+			inputStream.close();
+		} catch (IOException e) {
+			Log.d( "bitmapClass", "Bitmap IO prob" );
+			// Spacer commet
+		} finally {
+		}
+		
+		try {
+			assets = context.getAssets();
+			InputStream inputStream = assets.open( rightImg );
+			rightDirBitmap = BitmapFactory.decodeStream( inputStream );
+			inputStream.close();
+		} catch ( IOException e ){
+			//spacer
+		} finally {
+		}
+		
+		try {
+			assets = context.getAssets();
+			InputStream inputStream = assets.open( leftImg );
+			leftDirBitmap = BitmapFactory.decodeStream( inputStream );
+			inputStream.close();
+		} catch ( IOException e ){
+			//spacer
+		} finally {
+		}
+		
+		try {
+			assets = context.getAssets();
+			InputStream inputStream = assets.open( fireImg );
+			fireBitmap = BitmapFactory.decodeStream( inputStream );
+			inputStream.close();
+		} catch ( IOException e ){
+			//spacer
+		} finally {
+		}
+	}
+	
+	public Bitmap getShipBitmap()
+	{
+		//Log.d( "bitmapClass", "getBitmap called" );
+		return shipBitmap;
+	}
+	
+	public Bitmap getLeftDirBitmap()
+	{
+		return leftDirBitmap;
+	}
+	
+	public Bitmap getRightDirBitmap()
+	{
+		return rightDirBitmap;
+	}
+	
+	public Bitmap getFireBitmap()
+	{
+		return fireBitmap;
+	}
+	
+	public void clearBitmaps()
+	{
+		shipBitmap.recycle();
+		leftDirBitmap.recycle();
+		rightDirBitmap.recycle();
+		fireBitmap.recycle();
+	}
+
+}
