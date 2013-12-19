@@ -1,0 +1,60 @@
+package com.android.andGal.mainGame;
+
+import android.content.Context;
+import android.graphics.Canvas;
+import android.graphics.Paint;
+import android.util.Log;
+
+public class SpaceShip extends Moveable{
+	//Position vars
+	int player;
+	
+	// Canvas variables
+	private colorEnum shipColor;
+	Paint shotPaint;
+	
+	// Bitmap hndler
+	Context context;
+	ShipBitMap shipBit;
+	
+	public SpaceShip( Context myContext, colorEnum clr, int plr, colorEnum shotColor )
+	{
+		Log.d( "SpaceClass", "Constructor works" );
+		
+		// Initalizing
+		shipColor = clr;
+		context = myContext;
+		shotPaint = new Paint();
+		player = plr;
+		
+		// If to initalize
+		if ( player == 1 )
+		{
+			//super.setPosition(350, 1080);
+		}
+		
+		if (player == 2 )
+		{
+			//super.setPosition(350, 1080);
+		}
+		
+		//Other init
+		shipBit = new ShipBitMap( context, player, shotColor );
+	}
+	
+	public void draw( Canvas canvas, float deltaTime )
+	{
+		canvas.drawBitmap( shipBit.getShipBitmap(), ((int) super.getX()), ((int)super.getY()), null );
+		if ( player == 1 )
+			canvas.drawBitmap( shipBit.getLeftDirBitmap(), 700, 0, null );
+			canvas.drawBitmap( shipBit.getRightDirBitmap(), 599, 0, null );
+			canvas.drawBitmap( shipBit.getFireBitmap(), 0, 0, null );
+		
+		if ( player == 2 )
+			canvas.drawBitmap( shipBit.getLeftDirBitmap(), 101, 1080, null );
+			canvas.drawBitmap( shipBit.getRightDirBitmap(), 0, 1080, null);
+			canvas.drawBitmap( shipBit.getFireBitmap(), 700, 1080, null);
+			
+	}
+	
+}
