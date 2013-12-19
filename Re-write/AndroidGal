@@ -1,0 +1,258 @@
+package com.android.andGal.mainGame;
+
+import android.os.Bundle;
+import android.app.Activity;
+import android.support.v4.view.MotionEventCompat;
+import android.util.Log;
+import android.content.Context;
+import android.graphics.Canvas;
+import android.graphics.Paint;
+import android.graphics.Paint.Style;
+import android.view.MotionEvent;
+import android.view.SurfaceHolder;
+import android.view.SurfaceView;
+import android.view.View;
+import android.view.View.OnTouchListener;
+import android.view.Window;
+import android.view.WindowManager;
+
+
+public class AndroidGal extends Activity implements OnTouchListener
+{
+ // All global objects needed
+    FastRenderView renderView;
+    View view;
+    Context context;
+    
+    //DataTracker datTrack;
+    float deltaTime;
+    
+    GamePieceList gpList;
+
+	public void onCreate( Bundle savedInstanceState )
+	{
+		super.onCreate( savedInstanceState );
+		
+		SpaceShip sp1 = new SpaceShip( context, colorEnum.BLUE, 1, colorEnum.YELLOW );
+		SpaceShip sp2 = new SpaceShip( context, colorEnum.GREEN, 2, colorEnum.RED );
+		
+		gpList.addToShipList(sp1);
+		gpList.addToShipList(sp2);
+   		
+   		view = new View( this );
+   		
+		// Requesting the fullscreen for the activity
+   		requestWindowFeature( Window.FEATURE_NO_TITLE );
+        getWindow().setFlags( WindowManager.LayoutParams.FLAG_FULLSCREEN,WindowManager.LayoutParams.FLAG_FULLSCREEN );
+        
+		// Starting up the rendering
+		renderView = new FastRenderView( this );
+		renderView.setOnTouchListener( this );
+		setContentView( renderView );
+	}
+
+	public boolean onTouch( View v, MotionEvent event )
+	{
+		// Initilizing some varibles for multi-touch
+		int halfHeight = renderView.getHeight() / 2;
+		int maxCount = event.getPointerCount();
+		int action = MotionEventCompat.getActionMasked( event );
+		Log.d("KevinApp", "OnTouch: " + String.valueOf( action ));
+		for ( int i = 0; i < maxCount; i++ )
+		{
+			// int mActivePointerId = event.getPointerId( i );
+			// int pointerIndex = event.findPointerIndex( mActivePointerId );
+			// int index = MotionEventCompat.getActionIndex( event );
+   
+			// Reacting to the finger taps
+			switch( action )
+			{
+				case MotionEvent.ACTION_DOWN:
+				case MotionEvent.ACTION_POINTER_DOWN:
+				case MotionEvent.ACTION_MOVE:
+					// Top player button eval
+					if ( MotionEventCompat.getY( event, i ) <= halfHeight )
+					{
+						if ( MotionEventCompat.getX( event, i ) >= 700 && MotionEventCompat.getY( event, i ) <= 101) 
+						{
+							//Set the direction of the space ship, change state
+							Log.d( "Ontouch", "ButtonTopRight" );
+						}
+						
+						if ( MotionEventCompat.getX( event, i ) <= 699 && MotionEventCompat.getY( event, i ) <= 101 )
+						{
+							if ( MotionEventCompat.getX( event, i ) >= 599 && MotionEventCompat.getY( event, i ) <= 101 )
+							{
+								//set the direction of the space ship, change state
+								Log.d( "Ontouch", "ButtonTopLeft" );
+							}	
+						}
+						
+						if ( MotionEventCompat.getX( event, i ) <= 101 && MotionEventCompat.getY( event, i ) <= 101 )
+						{
+							//Set the shoot function
+							Log.d( "Ontouch", "ButtonTopFire" );
+						}	
+					}
+					
+					// Bottom Player button eval
+					if ( MotionEventCompat.getY( event, i ) > halfHeight )
+					{
+						if ( MotionEventCompat.getX( event, i ) >= 700 && MotionEventCompat.getY( event, i ) > 1080 )
+						{
+							//Set the shoot function
+							Log.d( "Ontouch", "ButtonBottShoot" );
+						}	
+					
+						if ( MotionEventCompat.getX( event, i ) >= 101 && MotionEventCompat.getX( event, i ) <= 201 )
+						{
+							if ( MotionEventCompat.getY( event, i ) >= 1080 )
+								//Set the direction of the space ship, change state
+								Log.d( "Ontouch", "ButtonBottRight" );
+								
+						}
+					
+						if ( MotionEventCompat.getX( event, i ) <= 100 && MotionEventCompat.getY( event, i ) >= 1080 )
+						{
+							//Set the direction of the space ship, change state
+							Log.d( "Ontouch", "ButtonBottLeft" );
+						}
+					}
+					
+				case MotionEvent.ACTION_POINTER_UP:
+					if ( MotionEventCompat.getY( event, i ) < halfHeight )
+					{
+						
+					 	if ( MotionEventCompat.getX( event, i ) >= 700 && MotionEventCompat.getY( event, i ) <= 100 )
+					 	{
+					 		//Update the state of the space ship
+					 		Log.d( "Ontouch", "TopNull" );
+					 	}
+					 	
+					 	if ( MotionEventCompat.getX( event, i ) <= 699 && MotionEventCompat.getX( event, i ) >= 599 )
+					 	{
+					 		if( MotionEventCompat.getY( event, i ) <= 101 )
+					 			//Update the state of the space ship
+					 			Log.d( "Ontouch", "TopNull" );
+					 	}
+					}
+					
+					if ( MotionEventCompat.getY( event, i ) > halfHeight )
+					{
+						if ( MotionEventCompat.getX( event, i ) <= 100 && MotionEventCompat.getY( event, i ) <= 1080 )
+						{
+							//Update the state of the space ship
+							Log.d( "Ontouch", "BottNull" );
+						}
+						
+						if ( MotionEventCompat.getX( event, i ) >= 101 && MotionEventCompat.getY( event, i ) <= 1080 )
+						{
+							if ( MotionEventCompat.getX( event, i ) <= 201 )
+								//Update the state of the space ship
+								Log.d( "OnTouch", "BottNull" );
+						}
+					}
+			break;
+			}
+		}	
+		return true;
+	}
+
+	protected void onResume()
+	{
+		Log.d( "mainClass", "OnResume" );
+		super.onResume();
+		renderView.resume();
+	}
+
+	protected void onPause()
+	{
+		Log.d( "mainClass", "OnPause" );
+		super.onPause();
+		renderView.pause();
+	}	  
+
+	class FastRenderView extends SurfaceView implements Runnable 
+	{
+		Thread renderThread = null;
+		SurfaceHolder holder;
+		volatile boolean running = false;
+		Paint paint;
+ 
+		public FastRenderView( Context context )
+		{
+			super( context );
+			holder = getHolder();
+			paint = new Paint();
+			Log.d( "renderClass", "Consructor works!" );
+		}
+ 
+		public void resume()
+		{
+			Log.d( "renderClass", "resume called" );
+			running = true;
+			renderThread = new Thread( this );
+			renderThread.start();
+		}	
+ 
+		public void run()
+		{
+			//Log.d( "renderClass", "before loop" );
+			long startTime = System.nanoTime();
+			long curTime;
+			while( running )
+			{
+				// Setting up the time
+				curTime = System.nanoTime();
+				deltaTime = ( curTime - startTime ) * 1000000000.0f;
+				startTime = curTime;
+				
+				// Starting the main rendering part of the thread
+				if( !holder.getSurface().isValid() )
+					continue;
+				Canvas canvas = holder.lockCanvas();
+
+				//Log.d( "renderClass", "starting to draw" );
+
+				canvas.drawRGB( 0, 0, 0 );
+				paint.setStyle( Style.FILL );
+				int width = canvas.getWidth();
+				int height = canvas.getHeight();
+				
+				// Update the movement on any objects
+				gpList.updateTimeStep( deltaTime );
+				
+				// check if anything interacted
+				gpList.checkCollisions();
+				
+				// Update the display with the new positions.
+				gpList.draw( canvas );
+
+				// Cleaning and re-orientating
+				holder.unlockCanvasAndPost( canvas );
+
+				//Log.d( "renderClass", "posted the canvas" );
+				
+
+			}
+		}
+ 
+		public void pause() 
+		{
+			Log.d( "renderClass", "pauseCalled");
+			running = false;
+			while( true )
+			{
+				try {
+					renderThread.join();
+					Log.d( "renderClass", "Pause thread joined" );
+					return;
+				} catch ( InterruptedException e ) {
+					//retry
+					Log.d( "renderClass", "interupped exception" );
+				}
+			}
+		}
+        
+	}
+}
