@@ -1,0 +1,43 @@
+package com.android.andGal.mainGame;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import android.graphics.Canvas;
+
+public class GamePieceList {
+	
+	List<Bullet> bulletArray = new ArrayList<Bullet>();
+	List<SpaceShip> shipArray = new ArrayList<SpaceShip>();
+	
+	public GamePieceList(){
+		bulletArray = new ArrayList<Bullet>();
+		shipArray = new ArrayList<SpaceShip>();
+	}
+
+	public void addToBulletList(Bullet bullet){
+		bulletArray.add(bullet);
+	}
+	
+	public void addToShipList(SpaceShip spaceShip){
+		shipArray.add(spaceShip);
+	}
+	
+	public void updateTimeStep(float deltaTime){
+		//Loop through two Lists and do a update passing de
+		for( int i = 0; i < shipArray.size(); i++ ){
+			shipArray.get(i).updatePosition(deltaTime);
+		}
+		for( int i = 0; i < bulletArray.size(); i++ ){
+			bulletArray.get(i).updatePosition(deltaTime);
+		}
+	}
+	
+	public void draw(Canvas canvas){
+		//Loop through two lists and draw on the canvas that was passed
+	}
+
+	public void checkCollisions() {
+		//Loop through two lists and check the X, Y ranges
+	}
+}
