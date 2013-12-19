@@ -1,0 +1,45 @@
+package com.android.andGal.mainGame;
+
+public class Position{
+	private double X;
+	private double Y;
+	
+	Position()
+	{
+		X = 0;
+		Y = 0;
+	}
+	
+	void setPosition(double newX, double newY)
+	{
+		X = newX;
+		Y = newY;
+	}
+
+	double getX()
+	{
+		return X;
+	}
+	
+	double getY()
+	{
+		return Y;
+	}
+	
+	void updatePosition(double deltaX, double deltaY)
+	{
+		X += deltaX;
+		Y += deltaY;
+	}
+	
+	void updateX(double deltaX)
+	{
+		X += deltaX;
+	}
+
+	void updateY(double deltaY)
+	{
+		Y += deltaY;
+	}
+	
+}
