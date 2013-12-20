@@ -12,7 +12,7 @@ public class ShipBitMap {
 	
 	//Pos andr Color
 	int plr;
-	colorEnum shipColor;
+	ResourceEnum shipColor;
 	
 	//Bitmaps
 	Bitmap shipBitmap;
@@ -30,7 +30,7 @@ public class ShipBitMap {
 	AssetManager assets;
 	Context context;
 	
-	public ShipBitMap( Context co, int player, colorEnum color ){
+	public ShipBitMap( Context co, int player, ResourceEnum color ){
 		context = co;
 		plr = player;
 		shipColor = color;
