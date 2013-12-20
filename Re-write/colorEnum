@@ -1,5 +1,0 @@
-package com.android.andGal.mainGame;
-
-public enum colorEnum {
-	BLUE, RED, GREEN, YELLOW
-}
