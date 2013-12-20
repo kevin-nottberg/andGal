@@ -1,5 +1,0 @@
-package com.android.andGal.mainGame;
-
-public enum direction {
-	UP, RIGHT, DOWN, LEFT
-}
