@@ -10,14 +10,14 @@ public class SpaceShip extends Moveable{
 	int player;
 	
 	// Canvas variables
-	private colorEnum shipColor;
+	private ResourceEnum shipColor;
 	Paint shotPaint;
 	
 	// Bitmap hndler
 	Context context;
 	ShipBitMap shipBit;
 	
-	public SpaceShip( Context myContext, colorEnum clr, int plr, colorEnum shotColor )
+	public SpaceShip( Context myContext, colorEnum clr, int plr, ResourceEnum shotColor )
 	{
 		Log.d( "SpaceClass", "Constructor works" );
 		
