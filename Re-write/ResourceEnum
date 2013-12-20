@@ -1,6 +1,6 @@
 package com.android.andGal.mainGame
 
-public Enum ResourceEnum 
+public enum ResourceEnum 
 {
 	BLUE, GREEN, RED, YELLOW, UP, DOWN, LEFT, RIGHT
 }
