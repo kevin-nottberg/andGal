@@ -1,0 +1,83 @@
+class FastRenderView extends SurfaceView implements Runnable 
+	{
+		Thread renderThread = null;
+		SurfaceHolder holder;
+		volatile boolean running = false;
+		Paint paint;
+ 
+		public FastRenderView( Context context )
+		{
+			super( context );
+			holder = getHolder();
+			paint = new Paint();
+			Log.d( "renderClass", "Consructor works!" );
+		}
+ 
+		public void resume()
+		{
+			Log.d( "renderClass", "resume called" );
+			running = true;
+			renderThread = new Thread( this );
+			renderThread.start();
+		}	
+ 
+		public void run()
+		{
+			//Log.d( "renderClass", "before loop" );
+			long startTime = System.nanoTime();
+			long curTime;
+			while( running )
+			{
+				// Setting up the time
+				curTime = System.nanoTime();
+				deltaTime = ( curTime - startTime ) * 1000000000.0f;
+				startTime = curTime;
+				
+				// Starting the main rendering part of the thread
+				if( !holder.getSurface().isValid() )
+					continue;
+				Canvas canvas = holder.lockCanvas();
+
+				//Log.d( "renderClass", "starting to draw" );
+
+				canvas.drawRGB( 0, 0, 0 );
+				paint.setStyle( Style.FILL );
+				int width = canvas.getWidth();
+				int height = canvas.getHeight();
+				
+				// Update the movement on any objects
+				gpList.updateTimeStep( deltaTime );
+				
+				// check if anything interacted
+				gpList.checkCollisions();
+				
+				// Update the display with the new positions.
+				gpList.draw( canvas );
+
+				// Cleaning and re-orientating
+				holder.unlockCanvasAndPost( canvas );
+
+				//Log.d( "renderClass", "posted the canvas" );
+				
+
+			}
+		}
+ 
+		public void pause() 
+		{
+			Log.d( "renderClass", "pauseCalled");
+			running = false;
+			while( true )
+			{
+				try {
+					renderThread.join();
+					Log.d( "renderClass", "Pause thread joined" );
+					return;
+				} catch ( InterruptedException e ) {
+					//retry
+					Log.d( "renderClass", "interupped exception" );
+				}
+			}
+		}
+        
+	}
