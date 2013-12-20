@@ -5,7 +5,7 @@ import android.graphics.Rect;
 
 public class Bullet extends Moveable { 
 	
-	private direction direction;
+	private ResourseEnum direction;
 	private Paint paint;
 	private Rect rect;
   
@@ -14,11 +14,11 @@ public class Bullet extends Moveable {
     	if( plr == 1 ){
     		//super.setPosition( X, Y );
     		//super.setRates( 0,  -deltaY );
-    		direction = direction.UP;
+    		direction = ResourceEnum.UP;
     	} else if( plr == 2 ){
     		//super.setPostion( X, Y );
     		//super.setRates( 0, deltaY );
-    		direction = direction.DOWN;
+    		direction = ResourceEnum.DOWN;
     	}
     	
     }
